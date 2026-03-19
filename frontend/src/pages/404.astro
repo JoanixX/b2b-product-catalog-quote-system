@@ -1,0 +1,88 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Página no encontrada - LabMedical" description="La página que busca no existe.">
+  <div class="not-found">
+    <div class="container">
+      <span class="error-code">404</span>
+      <h1>Página no encontrada</h1>
+      <p>La página que busca no existe o ha sido movida. Verifique la URL o navegue al catálogo de productos.</p>
+      <div class="actions">
+        <a href="/productos" class="btn-primary">Ir al Catálogo</a>
+        <a href="/" class="btn-secondary">Ir al Inicio</a>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .not-found {
+    padding: 6rem 1.5rem;
+    text-align: center;
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+  }
+
+  .container {
+    max-width: 500px;
+  }
+
+  .error-code {
+    font-size: 5rem;
+    font-weight: 700;
+    color: var(--azul-institucional);
+    line-height: 1;
+    opacity: 0.3;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+    color: var(--gris-texto);
+    margin: 0.5rem 0;
+    font-weight: 700;
+  }
+
+  p {
+    color: var(--gris-secundario);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+
+  .actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    padding: 0.75rem 2rem;
+    background: var(--azul-institucional);
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+
+  .btn-primary:hover {
+    background: var(--azul-hover);
+  }
+
+  .btn-secondary {
+    padding: 0.75rem 2rem;
+    background: white;
+    color: var(--gris-texto);
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    border: 1px solid var(--gris-borde);
+    font-size: 0.9375rem;
+  }
+
+  .btn-secondary:hover {
+    background: #f8fafc;
+  }
+</style>

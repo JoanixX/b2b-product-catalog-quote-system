@@ -1,0 +1,183 @@
+---
+// Componente de navegacion principal con badge de cotizacion
+---
+
+<nav class="navbar" role="navigation" aria-label="Navegación principal">
+  <div class="nav-container">
+    <a href="/" class="logo" aria-label="LabMedical - Inicio">
+      <span class="logo-text">LabMedical</span>
+    </a>
+
+    <button class="menu-toggle" aria-label="Abrir menu" aria-expanded="false">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+
+    <ul class="nav-links" role="menubar">
+      <li role="none"><a href="/" role="menuitem">Inicio</a></li>
+      <li role="none"><a href="/productos" role="menuitem">Productos</a></li>
+      <li role="none"><a href="/documentacion" role="menuitem">Documentación</a></li>
+      <li role="none">
+        <a href="/cotizacion" role="menuitem" class="quote-link">
+          Cotizar
+          <span id="cart-badge" class="cart-badge" style="display:none;">0</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<style>
+  .navbar {
+    background: var(--azul-institucional);
+    color: white;
+    padding: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .nav-container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 64px;
+  }
+
+  .logo {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .logo-text {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: white;
+    letter-spacing: -0.025em;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    align-items: center;
+  }
+
+  .nav-links a {
+    color: rgba(255,255,255,0.9);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .nav-links a:hover,
+  .nav-links a:focus-visible {
+    background: rgba(255,255,255,0.15);
+    color: white;
+  }
+
+  .quote-link {
+    display: flex !important;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255,255,255,0.15) !important;
+    font-weight: 600 !important;
+  }
+
+  .cart-badge {
+    background: white;
+    color: var(--azul-institucional);
+    font-size: 0.75rem;
+    font-weight: 700;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  /* Hamburguesa responsive */
+  .menu-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+  }
+
+  .bar {
+    width: 24px;
+    height: 2px;
+    background: white;
+    border-radius: 1px;
+    transition: transform 0.2s;
+  }
+
+  @media (max-width: 768px) {
+    .menu-toggle {
+      display: flex;
+    }
+
+    .nav-links {
+      display: none;
+      position: absolute;
+      top: 64px;
+      left: 0;
+      right: 0;
+      background: var(--azul-institucional);
+      flex-direction: column;
+      padding: 1rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+    }
+
+    .nav-links.open {
+      display: flex;
+    }
+
+    .nav-links a {
+      width: 100%;
+      padding: 0.75rem 1rem;
+    }
+  }
+</style>
+
+<script>
+  // Badge del carrito
+  import { quoteCart } from '../lib/stores/quoteCart';
+
+  function updateBadge() {
+    const badge = document.getElementById('cart-badge');
+    if (!badge) return;
+    const count = quoteCart.get().length;
+    badge.textContent = count.toString();
+    badge.style.display = count > 0 ? 'inline-flex' : 'none';
+  }
+
+  // Actualizar al cargar y cuando cambie el store
+  updateBadge();
+  quoteCart.subscribe(updateBadge);
+
+  // Menu hamburguesa
+  const toggle = document.querySelector('.menu-toggle');
+  const navLinks = document.querySelector('.nav-links');
+  
+  toggle?.addEventListener('click', () => {
+    const isOpen = navLinks?.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', String(isOpen));
+  });
+</script>

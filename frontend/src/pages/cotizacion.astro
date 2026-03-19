@@ -1,0 +1,586 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Solicitar Cotización - LabMedical" description="Solicite cotización de equipos médicos con su RUC. Respuesta en menos de 24 horas hábiles.">
+  <div class="quote-page">
+    <div class="container">
+      <div class="page-header">
+        <h1>Solicitar Cotización</h1>
+        <p>Complete el formulario con los datos de su empresa. Le responderemos en menos de 24 horas hábiles.</p>
+      </div>
+
+      <!-- Productos seleccionados -->
+      <div id="cartSection" class="cart-section" style="display:none;">
+        <h2>Productos Seleccionados</h2>
+        <table class="cart-table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Marca</th>
+              <th>Cantidad (uds.)</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="cartBody"></tbody>
+        </table>
+        <p class="cart-hint">Puede agregar mas productos desde el <a href="/productos">catalogo</a>.</p>
+      </div>
+
+      <div id="emptyCartMessage" class="empty-cart">
+        <p>No ha seleccionado productos aun. <a href="/productos">Ir al catalogo</a> para agregar productos a su cotizacion.</p>
+      </div>
+
+      <form id="quoteForm" class="quote-form" novalidate>
+        <div class="form-section">
+          <h2>Datos de la Empresa</h2>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="company_name">Razón Social <span class="required">*</span></label>
+              <input type="text" id="company_name" name="company_name" autocomplete="organization" />
+              <span class="field-error" id="error_company_name"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="company_tax_id">RUC <span class="required">*</span></label>
+              <input type="text" id="company_tax_id" name="company_tax_id" maxlength="11" inputmode="numeric" placeholder="20XXXXXXXXX" />
+              <span class="field-error" id="error_company_tax_id"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h2>Datos de Contacto</h2>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="contact_name">Nombre del Contacto <span class="required">*</span></label>
+              <input type="text" id="contact_name" name="contact_name" autocomplete="name" />
+              <span class="field-error" id="error_contact_name"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email Corporativo <span class="required">*</span></label>
+              <input type="email" id="email" name="email" autocomplete="email" />
+              <span class="field-error" id="error_email"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Teléfono <span class="required">*</span></label>
+            <input type="tel" id="phone" name="phone" autocomplete="tel" inputmode="numeric" placeholder="+51 123 456 789" />
+            <span class="field-error" id="error_phone"></span>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h2>Detalles de la Cotización</h2>
+
+          <div class="form-group">
+            <label for="message">Observaciones / Referencia de Licitación</label>
+            <textarea id="message" name="message" rows="4" placeholder="Número de proceso de licitación, especificaciones adicionales, plazos de entrega..."></textarea>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-submit" id="submitBtn">Enviar Solicitud de Cotización</button>
+        </div>
+      </form>
+
+      <!-- Estado: Exito -->
+      <div id="successMessage" class="status-message success" style="display:none;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+        <h2>Cotización Enviada Exitosamente</h2>
+        <p>Nos pondremos en contacto con usted en menos de 24 horas hábiles.</p>
+        <div id="successSummary" class="success-summary"></div>
+        <a href="/productos" class="btn-back">Volver al Catálogo</a>
+      </div>
+
+      <!-- Estado: Error -->
+      <div id="errorMessage" class="status-message error-state" style="display:none;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        <h2>Error al Enviar</h2>
+        <p id="errorText">Ocurrió un error al procesar su solicitud.</p>
+        <p class="error-contact">Contáctenos directamente: <strong>labmedicalbusinesssa@gmail.com</strong> o <strong>+51 997 392 467</strong></p>
+        <button class="btn-retry" id="retryBtn">Intentar de Nuevo</button>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .quote-page {
+    padding: 2.5rem 0;
+  }
+
+  .page-header {
+    margin-bottom: 2rem;
+  }
+
+  .page-header h1 {
+    font-size: 2rem;
+    color: var(--gris-texto);
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  .page-header p {
+    color: var(--gris-secundario);
+  }
+
+  /* Carrito / Productos seleccionados */
+  .cart-section {
+    background: white;
+    border: 1px solid var(--gris-borde);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .cart-section h2 {
+    font-size: 1rem;
+    color: var(--gris-texto);
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+
+  .cart-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0.75rem;
+  }
+
+  .cart-table th {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--gris-secundario);
+    border-bottom: 1px solid var(--gris-borde);
+    font-weight: 600;
+  }
+
+  .cart-table td {
+    padding: 0.625rem 0.75rem;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.9375rem;
+  }
+
+  .cart-table .btn-remove {
+    background: none;
+    border: none;
+    color: var(--rojo-error);
+    cursor: pointer;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+  }
+
+  .cart-table .btn-remove:hover {
+    background: #fef2f2;
+  }
+
+  .qty-input {
+    width: 80px;
+    padding: 0.375rem 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-family: inherit;
+    text-align: center;
+  }
+
+  .qty-input:focus {
+    outline: none;
+    border-color: var(--azul-institucional);
+  }
+
+  .cart-hint {
+    font-size: 0.8125rem;
+    color: var(--gris-secundario);
+  }
+
+  .cart-hint a {
+    color: var(--azul-institucional);
+  }
+
+  .empty-cart {
+    background: #f8fafc;
+    border: 1px dashed var(--gris-borde);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: var(--gris-secundario);
+  }
+
+  .empty-cart a {
+    color: var(--azul-institucional);
+    font-weight: 500;
+  }
+
+  /* Formulario */
+  .quote-form {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    border: 1px solid var(--gris-borde);
+  }
+
+  .form-section {
+    margin-bottom: 2rem;
+  }
+
+  .form-section h2 {
+    font-size: 1rem;
+    color: var(--gris-pizarra);
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--gris-borde);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  @media (max-width: 640px) {
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  label {
+    display: block;
+    font-weight: 500;
+    color: var(--gris-texto);
+    margin-bottom: 0.375rem;
+    font-size: 0.9375rem;
+  }
+
+  .required {
+    color: var(--rojo-error);
+  }
+
+  input, textarea {
+    width: 100%;
+    padding: 0.6875rem 0.875rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.9375rem;
+    font-family: inherit;
+    transition: border-color 0.15s;
+    background: white;
+    color: var(--gris-texto);
+  }
+
+  input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--azul-institucional);
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+  }
+
+  input.invalid {
+    border-color: var(--rojo-error);
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  .field-error {
+    display: block;
+    color: var(--rojo-error);
+    font-size: 0.8125rem;
+    margin-top: 0.25rem;
+    min-height: 1.25rem;
+  }
+
+  .form-actions {
+    margin-top: 1.5rem;
+  }
+
+  .btn-submit {
+    width: 100%;
+    padding: 0.875rem 2rem;
+    background: var(--azul-institucional);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-family: inherit;
+  }
+
+  .btn-submit:hover {
+    background: var(--azul-hover);
+  }
+
+  .btn-submit:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+  }
+
+  /* Estados de resultado */
+  .status-message {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid var(--gris-borde);
+  }
+
+  .status-message h2 {
+    font-size: 1.5rem;
+    margin: 1rem 0 0.5rem;
+  }
+
+  .status-message p {
+    color: var(--gris-secundario);
+    margin-bottom: 0.5rem;
+  }
+
+  .success {
+    color: #16a34a;
+  }
+
+  .success h2 {
+    color: #15803d;
+  }
+
+  .success-summary {
+    text-align: left;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 6px;
+    padding: 1rem;
+    margin: 1rem auto;
+    max-width: 500px;
+    font-size: 0.9375rem;
+    color: var(--gris-texto);
+  }
+
+  .error-state {
+    color: var(--rojo-error);
+  }
+
+  .error-state h2 {
+    color: #991b1b;
+  }
+
+  .error-contact {
+    color: var(--gris-texto) !important;
+    margin-top: 1rem;
+    font-size: 0.9375rem;
+  }
+
+  .btn-back, .btn-retry {
+    display: inline-block;
+    margin-top: 1.5rem;
+    padding: 0.75rem 2rem;
+    background: var(--azul-institucional);
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    cursor: pointer;
+    font-family: inherit;
+  }
+</style>
+
+<script>
+  import { quoteCart, removeFromCart, updateQuantity, clearCart, getCartProductIds } from '../lib/stores/quoteCart';
+  import { validateRuc, validatePhone, validateEmail, validateRequired } from '../lib/validation';
+
+  const form = document.getElementById('quoteForm') as HTMLFormElement;
+  const cartSection = document.getElementById('cartSection')!;
+  const cartBody = document.getElementById('cartBody')!;
+  const emptyCartMsg = document.getElementById('emptyCartMessage')!;
+  const successMessage = document.getElementById('successMessage')!;
+  const errorMessage = document.getElementById('errorMessage')!;
+  const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+
+  // Renderizar carrito con cantidad editable
+  function renderCart() {
+    const items = quoteCart.get();
+    if (items.length === 0) {
+      cartSection.style.display = 'none';
+      emptyCartMsg.style.display = 'block';
+      return;
+    }
+    cartSection.style.display = 'block';
+    emptyCartMsg.style.display = 'none';
+
+    cartBody.innerHTML = items.map(item => `
+      <tr>
+        <td><a href="/productos/${item.slug}">${item.name}</a></td>
+        <td>${item.brand}</td>
+        <td>
+          <input type="number" class="qty-input" data-id="${item.id}" value="${item.quantity}" min="1" max="9999" />
+        </td>
+        <td><button class="btn-remove" data-id="${item.id}">Quitar</button></td>
+      </tr>
+    `).join('');
+
+    // Listeners de cantidad
+    cartBody.querySelectorAll('.qty-input').forEach(input => {
+      input.addEventListener('change', () => {
+        const el = input as HTMLInputElement;
+        const qty = Math.max(1, parseInt(el.value) || 1);
+        el.value = qty.toString();
+        updateQuantity(Number(el.dataset.id), qty);
+      });
+    });
+
+    // Listeners de quitar
+    cartBody.querySelectorAll('.btn-remove').forEach(btn => {
+      btn.addEventListener('click', () => {
+        removeFromCart(Number((btn as HTMLElement).dataset.id));
+        renderCart();
+      });
+    });
+  }
+
+  renderCart();
+  quoteCart.subscribe(renderCart);
+
+  // Mostrar error debajo de campo
+  function showFieldError(fieldId: string, message: string) {
+    const errorEl = document.getElementById(`error_${fieldId}`);
+    const inputEl = document.getElementById(fieldId) as HTMLInputElement;
+    if (errorEl) errorEl.textContent = message;
+    if (inputEl && message) inputEl.classList.add('invalid');
+    if (inputEl && !message) inputEl.classList.remove('invalid');
+  }
+
+  function clearErrors() {
+    document.querySelectorAll('.field-error').forEach(el => el.textContent = '');
+    document.querySelectorAll('.invalid').forEach(el => el.classList.remove('invalid'));
+  }
+
+  // Validar todo el formulario
+  function validateForm(): boolean {
+    clearErrors();
+    let valid = true;
+
+    const getValue = (id: string) => (document.getElementById(id) as HTMLInputElement)?.value || '';
+
+    const companyCheck = validateRequired(getValue('company_name'), 'Razon Social');
+    if (!companyCheck.valid) { showFieldError('company_name', companyCheck.error); valid = false; }
+
+    const rucCheck = validateRuc(getValue('company_tax_id'));
+    if (!rucCheck.valid) { showFieldError('company_tax_id', rucCheck.error); valid = false; }
+
+    const contactCheck = validateRequired(getValue('contact_name'), 'Nombre del Contacto');
+    if (!contactCheck.valid) { showFieldError('contact_name', contactCheck.error); valid = false; }
+
+    const emailCheck = validateEmail(getValue('email'));
+    if (!emailCheck.valid) { showFieldError('email', emailCheck.error); valid = false; }
+
+    const phoneCheck = validatePhone(getValue('phone'));
+    if (!phoneCheck.valid) { showFieldError('phone', phoneCheck.error); valid = false; }
+
+    return valid;
+  }
+
+  // Construir string de cantidades para el backend: "Producto A: 10 uds, Producto B: 5 uds"
+  function buildEstimatedQuantity(): string {
+    const items = quoteCart.get();
+    if (items.length === 0) return 'Consulta general';
+    return items.map(item => `${item.name}: ${item.quantity} uds`).join(', ');
+  }
+
+  // Enviar formulario
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    const productIds = getCartProductIds();
+    if (productIds.length === 0) {
+      productIds.push(1);
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Enviando solicitud...';
+
+    const formData = new FormData(form);
+    const data = {
+      company_name: formData.get('company_name') as string,
+      company_tax_id: formData.get('company_tax_id') as string,
+      contact_name: formData.get('contact_name') as string,
+      email: formData.get('email') as string,
+      phone: formData.get('phone') as string,
+      product_ids: productIds,
+      estimated_quantity: buildEstimatedQuantity(),
+      message: formData.get('message') as string || '',
+    };
+
+    try {
+      const apiUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:3000';
+      const response = await fetch(`${apiUrl}/api/quotes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Error al enviar cotizacion');
+      }
+
+      // Guardar referencia antes de limpiar carrito
+      const cartItems = quoteCart.get();
+
+      // Mostrar exito
+      form.style.display = 'none';
+      cartSection.style.display = 'none';
+      emptyCartMsg.style.display = 'none';
+      
+      const summary = document.getElementById('successSummary')!;
+      const productLines = cartItems.map(p => `${p.name} — ${p.quantity} uds`).join('<br>');
+      summary.innerHTML = `
+        <p><strong>Empresa:</strong> ${data.company_name}</p>
+        <p><strong>RUC:</strong> ${data.company_tax_id}</p>
+        <p><strong>Contacto:</strong> ${data.contact_name}</p>
+        <p><strong>Email:</strong> ${data.email}</p>
+        <p><strong>Productos:</strong></p>
+        <p>${productLines || 'Consulta general'}</p>
+      `;
+      successMessage.style.display = 'block';
+      clearCart();
+
+    } catch (err: any) {
+      form.style.display = 'none';
+      cartSection.style.display = 'none';
+      emptyCartMsg.style.display = 'none';
+      const errorText = document.getElementById('errorText')!;
+      errorText.textContent = err.message || 'Error al procesar la solicitud';
+      errorMessage.style.display = 'block';
+    }
+  });
+
+  // Boton reintentar
+  document.getElementById('retryBtn')?.addEventListener('click', () => {
+    errorMessage.style.display = 'none';
+    form.style.display = 'block';
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Enviar Solicitud de Cotización';
+    renderCart();
+  });
+</script>

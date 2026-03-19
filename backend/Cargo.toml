@@ -1,0 +1,49 @@
+[package]
+name = "labmedical_api"
+version = "0.2.0"
+edition = "2021"
+
+[dependencies]
+# web framework
+axum = { version = "0.7", features = ["multipart"] }
+tokio = { version = "1", features = ["full"] }
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors", "trace", "limit"] }
+
+# rate limiting
+governor = "0.6"
+tower_governor = "0.4"
+
+# base de datos
+sqlx = { version = "0.7", features = ["postgres", "runtime-tokio-native-tls", "migrate", "chrono", "uuid"] }
+
+# serializacion
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# autenticacion - argon2id para hashing, jwt para tokens
+jsonwebtoken = "9"
+argon2 = "0.5"
+
+# aws s3
+aws-sdk-s3 = "1"
+aws-config = "1"
+
+# utilidades
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+dotenv = "0.15"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+regex = "1"
+
+# validacion y sanitizacion
+validator = { version = "0.18", features = ["derive"] }
+ammonia = "4"
+
+# manejo de errores
+thiserror = "1"
+anyhow = "1"
+
+# cliente http
+reqwest = { version = "0.11", features = ["json"] }

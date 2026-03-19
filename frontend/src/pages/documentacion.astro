@@ -1,0 +1,231 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Centro de Documentación - LabMedical" description="Documentación legal, certificaciones ISO, constitución y catálogos de LabMedical para procesos de licitación pública y privada.">
+  <div class="docs-page">
+    <div class="container">
+      <div class="page-header">
+        <h1>Centro de Documentación</h1>
+        <p>Documentos corporativos disponibles para procesos de licitación, contratación directa y validación de proveedor.</p>
+      </div>
+
+      <div class="docs-grid">
+        <section class="doc-category">
+          <h2>Datos de la Empresa</h2>
+          <div class="doc-list">
+            <div class="doc-item">
+              <div class="doc-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+              <div class="doc-info">
+                <h3>Ficha RUC</h3>
+                <p>Registro Único de Contribuyente vigente ante SUNAT</p>
+              </div>
+              <span class="doc-status">Disponible bajo solicitud</span>
+            </div>
+            <div class="doc-item">
+              <div class="doc-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+              <div class="doc-info">
+                <h3>Constitución de la Empresa</h3>
+                <p>Escritura pública de constitución y poderes vigentes</p>
+              </div>
+              <span class="doc-status">Disponible bajo solicitud</span>
+            </div>
+            <div class="doc-item">
+              <div class="doc-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+              <div class="doc-info">
+                <h3>Vigencia de Poderes</h3>
+                <p>Certificado de vigencia de poderes del representante legal</p>
+              </div>
+              <span class="doc-status">Disponible bajo solicitud</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="doc-category">
+          <h2>Certificaciones y Calidad</h2>
+          <div class="doc-list">
+            <div class="doc-item">
+              <div class="doc-icon cert">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+              </div>
+              <div class="doc-info">
+                <h3>Certificación ISO 9001</h3>
+                <p>Sistema de gestión de calidad certificado</p>
+              </div>
+              <span class="doc-status">Disponible bajo solicitud</span>
+            </div>
+            <div class="doc-item">
+              <div class="doc-icon cert">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+              </div>
+              <div class="doc-info">
+                <h3>Registros Sanitarios DIGEMID</h3>
+                <p>Registros sanitarios vigentes de todos nuestros equipos médicos</p>
+              </div>
+              <span class="doc-status">Disponible por producto</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="doc-category">
+          <h2>Catálogos</h2>
+          <div class="doc-list">
+            <div class="doc-item">
+              <div class="doc-icon catalog">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              </div>
+              <div class="doc-info">
+                <h3>Catálogo General de Productos</h3>
+                <p>Catálogo completo con fichas técnicas y especificaciones</p>
+              </div>
+              <span class="doc-status">Disponible bajo solicitud</span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="doc-cta">
+        <h2>¿Necesita estos documentos?</h2>
+        <p>Solicite la documentación necesaria para su proceso de licitación o contratación. Enviamos los documentos en formato digital en menos de 24 horas hábiles.</p>
+        <a href="/cotizacion" class="btn-request">Solicitar Documentación</a>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .docs-page {
+    padding: 2.5rem 0;
+  }
+
+  .page-header {
+    margin-bottom: 2.5rem;
+  }
+
+  .page-header h1 {
+    font-size: 2rem;
+    color: var(--gris-texto);
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  .page-header p {
+    color: var(--gris-secundario);
+    max-width: 640px;
+  }
+
+  .docs-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .doc-category h2 {
+    font-size: 1.125rem;
+    color: var(--gris-texto);
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+
+  .doc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .doc-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: white;
+    border: 1px solid var(--gris-borde);
+    border-radius: 8px;
+  }
+
+  .doc-icon {
+    color: var(--azul-institucional);
+    flex-shrink: 0;
+  }
+
+  .doc-icon.cert {
+    color: #16a34a;
+  }
+
+  .doc-icon.catalog {
+    color: #d97706;
+  }
+
+  .doc-info {
+    flex: 1;
+  }
+
+  .doc-info h3 {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--gris-texto);
+    margin-bottom: 0.125rem;
+  }
+
+  .doc-info p {
+    font-size: 0.8125rem;
+    color: var(--gris-secundario);
+  }
+
+  .doc-status {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--azul-institucional);
+    background: var(--azul-light);
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    white-space: nowrap;
+  }
+
+  .doc-cta {
+    background: var(--azul-institucional);
+    color: white;
+    text-align: center;
+    padding: 3rem 2rem;
+    border-radius: 12px;
+  }
+
+  .doc-cta h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+  }
+
+  .doc-cta p {
+    opacity: 0.9;
+    max-width: 500px;
+    margin: 0 auto 1.5rem;
+  }
+
+  .btn-request {
+    display: inline-block;
+    background: white;
+    color: var(--azul-institucional);
+    padding: 0.75rem 2rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  @media (max-width: 640px) {
+    .doc-item {
+      flex-wrap: wrap;
+    }
+    .doc-status {
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>

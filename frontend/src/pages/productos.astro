@@ -1,0 +1,291 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getProducts, getCategories, type Product, type Category } from '../lib/api';
+
+let products: Product[] = [];
+let categories: Category[] = [];
+let error = null;
+
+try {
+  const productsData = await getProducts({ limit: 24 });
+  products = productsData.products;
+  categories = await getCategories();
+} catch (e) {
+  error = 'Error al cargar productos';
+  console.error(e);
+}
+---
+
+<Layout title="Catálogo de Productos - LabMedical" description="Catálogo técnico de equipos médicos con registro sanitario DIGEMID. Fichas técnicas, especificaciones y cotizaciones.">
+  <div class="products-page">
+    <div class="container">
+      <div class="page-header">
+        <h1>Catálogo Técnico</h1>
+        <p>Equipos médicos con registro sanitario y ficha técnica disponible</p>
+      </div>
+      
+      {error && (
+        <div class="error-message" role="alert">
+          <p><strong>{error}</strong></p>
+          <p>Asegúrese de que el servidor backend esté en ejecución.</p>
+        </div>
+      )}
+
+      {!error && categories.length > 0 && (
+        <nav class="categories" aria-label="Filtrar por categoría">
+          <div class="category-list">
+            <a href="/productos" class="category-chip active">Todas</a>
+            {categories.map(cat => (
+              <a href={`/productos?category=${cat.slug}`} class="category-chip">
+                {cat.name}
+              </a>
+            ))}
+          </div>
+        </nav>
+      )}
+
+      {!error && products.length > 0 && (
+        <div class="products-grid">
+          {products.map(product => (
+            <article class="product-card">
+              <div class="product-image">
+                {product.image_url ? (
+                  <img src={product.image_url} alt={product.name} loading="lazy" />
+                ) : (
+                  <div class="no-image" aria-label="Sin imagen disponible">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                  </div>
+                )}
+              </div>
+              <div class="product-info">
+                <span class="product-brand">{product.brand}</span>
+                <h3><a href={`/productos/${product.slug}`}>{product.name}</a></h3>
+                <p class="product-meta">Reg. Sanitario: {product.registro_sanitario}</p>
+                <div class="product-actions">
+                  <a href={`/productos/${product.slug}`} class="btn-view">Ver Detalles</a>
+                  <button
+                    class="btn-add-cart"
+                    data-product-id={product.id}
+                    data-product-name={product.name}
+                    data-product-brand={product.brand}
+                    data-product-slug={product.slug}
+                    aria-label={`Agregar ${product.name} a cotización`}
+                    title="Agregar a cotización"
+                  >+ Cotizar</button>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+
+      {!error && products.length === 0 && (
+        <div class="no-products">
+          <p>No hay productos disponibles en este momento.</p>
+        </div>
+      )}
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .products-page {
+    padding: 2.5rem 0;
+  }
+
+  .page-header {
+    margin-bottom: 2rem;
+  }
+
+  .page-header h1 {
+    font-size: 2rem;
+    color: var(--gris-texto);
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  .page-header p {
+    color: var(--gris-secundario);
+  }
+
+  .error-message {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+  }
+
+  .categories {
+    margin-bottom: 2rem;
+  }
+
+  .category-list {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .category-chip {
+    padding: 0.5rem 1rem;
+    background: white;
+    border: 1px solid var(--gris-borde);
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--gris-pizarra);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+
+  .category-chip:hover, .category-chip.active {
+    background: var(--azul-institucional);
+    color: white;
+    border-color: var(--azul-institucional);
+  }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .product-card {
+    background: white;
+    border-radius: 8px;
+    border: 1px solid var(--gris-borde);
+    overflow: hidden;
+    transition: box-shadow 0.15s;
+  }
+
+  .product-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  .product-image {
+    width: 100%;
+    height: 200px;
+    background: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .no-image {
+    color: #cbd5e1;
+  }
+
+  .product-info {
+    padding: 1.25rem;
+  }
+
+  .product-brand {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--azul-institucional);
+  }
+
+  .product-info h3 {
+    font-size: 1.0625rem;
+    margin: 0.25rem 0 0.5rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .product-info h3 a {
+    color: var(--gris-texto);
+    text-decoration: none;
+  }
+
+  .product-info h3 a:hover {
+    color: var(--azul-institucional);
+  }
+
+  .product-meta {
+    font-size: 0.8125rem;
+    color: var(--gris-secundario);
+    margin-bottom: 1rem;
+  }
+
+  .product-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .btn-view {
+    flex: 1;
+    text-align: center;
+    padding: 0.5rem 1rem;
+    background: var(--azul-institucional);
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background 0.15s;
+  }
+
+  .btn-view:hover {
+    background: var(--azul-hover);
+  }
+
+  .btn-add-cart {
+    padding: 0.5rem 0.75rem;
+    background: white;
+    color: var(--azul-institucional);
+    border: 1px solid var(--azul-institucional);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-add-cart:hover {
+    background: var(--azul-light);
+  }
+
+  .btn-add-cart.added {
+    background: #dcfce7;
+    color: #16a34a;
+    border-color: #16a34a;
+  }
+
+  .no-products {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--gris-secundario);
+  }
+</style>
+
+<script>
+  import { addToCart } from '../lib/stores/quoteCart';
+
+  document.querySelectorAll('.btn-add-cart').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const el = btn as HTMLButtonElement;
+      addToCart({
+        id: Number(el.dataset.productId),
+        name: el.dataset.productName || '',
+        brand: el.dataset.productBrand || '',
+        slug: el.dataset.productSlug || '',
+      });
+      el.textContent = '✓ Agregado';
+      el.classList.add('added');
+      setTimeout(() => {
+        el.textContent = '+ Cotizar';
+        el.classList.remove('added');
+      }, 1500);
+    });
+  });
+</script>

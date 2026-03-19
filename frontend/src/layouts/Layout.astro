@@ -1,0 +1,114 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const { title, description = 'Proveedor profesional de equipos médicos para instituciones de salud. Catalogo B2B con fichas tecnicas y registro sanitario DIGEMID.', ogImage } = Astro.props;
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://labmedical.com');
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- SEO -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL.href} />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL.href} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta property="og:locale" content="es_PE" />
+    <meta property="og:site_name" content="LabMedical" />
+
+    <!-- Tipografia profesional -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Ir al contenido principal</a>
+    <Navbar />
+    <main id="main-content">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --azul-institucional: #1e40af;
+    --azul-hover: #1e3a8a;
+    --azul-light: #dbeafe;
+    --gris-pizarra: #475569;
+    --gris-texto: #1f2937;
+    --gris-secundario: #6b7280;
+    --gris-borde: #e5e7eb;
+    --gris-fondo: #f8fafc;
+    --blanco: #ffffff;
+    --rojo-error: #dc2626;
+    --verde-exito: #16a34a;
+    --max-width: 1200px;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+    color: var(--gris-texto);
+    background: var(--gris-fondo);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  main {
+    min-height: calc(100vh - 200px);
+  }
+
+  /* Skip link para accesibilidad */
+  .skip-link {
+    position: absolute;
+    top: -100%;
+    left: 0;
+    background: var(--azul-institucional);
+    color: white;
+    padding: 0.5rem 1rem;
+    z-index: 100;
+    font-size: 0.875rem;
+  }
+
+  .skip-link:focus {
+    top: 0;
+  }
+
+  /* Focus visible para navegacion por teclado */
+  :focus-visible {
+    outline: 2px solid var(--azul-institucional);
+    outline-offset: 2px;
+  }
+
+  /* Contenedor reutilizable */
+  .container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+</style>
