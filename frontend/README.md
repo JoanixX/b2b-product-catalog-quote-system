@@ -1,6 +1,6 @@
-# Frontend LabMedical
+# Frontend [Nombre de Empresa]
 
-Frontend para la plataforma de catalogo medico B2B LabMedical, construido con Astro y TypeScript.
+Frontend para la plataforma de catalogo medico B2B [Nombre de Empresa], construido con Astro y TypeScript.
 
 ## Stack Tecnologico
 

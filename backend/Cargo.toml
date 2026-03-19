@@ -1,5 +1,5 @@
 [package]
-name = "labmedical_api"
+name = "b2b_product_catalog_quote_system_api"
 version = "0.2.0"
 edition = "2021"
 

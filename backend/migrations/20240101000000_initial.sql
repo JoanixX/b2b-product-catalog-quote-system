@@ -77,7 +77,7 @@ USING gin(to_tsvector('spanish', name || ' ' || COALESCE(description, '')));
 -- contrasena: admin123 (hash argon2id)
 INSERT INTO admins (email, password_hash, name) 
 VALUES (
-    'admin@labmedical.com', 
+    'admin@b2bproductcatalogquotesystem.com', 
     '$argon2id$v=19$m=19456,t=2,p=1$c2VjdXJlc2FsdGxhYm1lZA$QsM+5bLhEfQkuWfJOBGkVoUdqz3bGJhRkGF2vNNCaQo',
     'Administrador'
 );

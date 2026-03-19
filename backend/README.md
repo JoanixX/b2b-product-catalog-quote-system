@@ -1,6 +1,6 @@
-# API LabMedical - Backend
+# API B2B - Backend
 
-API Backend para la plataforma de catalogo medico B2B LabMedical, construida con Rust y Axum.
+API Backend para la plataforma de catalogo medico B2B, construida con Rust y Axum.
 
 ## Stack Tecnologico
 
@@ -64,7 +64,6 @@ backend/src/
 ### Instalacion
 
 1. Clonar el repositorio
-
 2. Copiar `.env.example` a `.env` y configurar:
 
    ```bash
@@ -72,7 +71,6 @@ backend/src/
    ```
 
 3. Obtener connection string de Neon.tech y pegarlo en `DATABASE_URL`
-
 4. Iniciar el servidor (las migraciones se ejecutan automaticamente):
 
    ```bash
@@ -132,13 +130,6 @@ El API devuelve errores opacos con codigos estandarizados:
 | `ERR_RATE_LIMIT`      | Demasiadas solicitudes                          |
 | `ERR_INVALID_RUC`     | RUC peruano invalido                            |
 
-## Credenciales de Administrador por Defecto
-
-- Email: `admin@labmedical.com`
-- Contraseña: `admin123`
-
-**⚠️ Cambiar estas credenciales inmediatamente en produccion**
-
 ## Variables de Entorno
 
 Ver `.env.example` para todas las variables de entorno requeridas.
@@ -152,7 +143,3 @@ Archivos de entorno disponibles:
 ## Deployment
 
 Configurado para deployment en Render.com. La configuracion se realiza desde el dashboard de Render (variables de entorno manuales, sin render.yaml).
-
-## Licencia
-
-Propietario - LabMedical

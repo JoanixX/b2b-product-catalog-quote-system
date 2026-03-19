@@ -14,7 +14,7 @@ export interface QuoteCartItem {
 
 // el store persistente sobrevive a recargas y navegacion
 export const quoteCart = persistentAtom<QuoteCartItem[]>(
-  "labmedical_quote_cart",
+  "[Nombre de Empresa]_quote_cart",
   [],
   {
     encode: JSON.stringify,

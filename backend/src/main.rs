@@ -33,7 +33,7 @@ async fn main() -> anyhow::Result<()> {
         )
         .init();
 
-    tracing::info!("Iniciando servidor API LabMedical v0.2.0");
+    tracing::info!("Iniciando servidor API B2B Product Catalog Quote System v0.2.0");
 
     // cargar configuracion
     let config = Config::from_env()

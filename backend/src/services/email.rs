@@ -57,7 +57,7 @@ impl EmailService {
     <div class="container">
         <div class="header">
             <h1>Nueva Solicitud de Cotizacion</h1>
-            <p>LabMedical - Sistema de Cotizaciones</p>
+            <p>B2B Product Catalog Quote System</p>
         </div>
         <div class="body">
             <div class="section">
@@ -85,7 +85,7 @@ impl EmailService {
             </div>
         </div>
         <div class="footer">
-            Este es un mensaje automatico del sistema de cotizaciones de LabMedical.
+            Este es un mensaje automatico del sistema de cotizaciones de [Nombre de Empresa].
         </div>
     </div>
 </body>

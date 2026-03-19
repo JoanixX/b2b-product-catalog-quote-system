@@ -32,7 +32,7 @@ if (error || !product) {
   return Astro.redirect('/404');
 }
 
-const pageTitle = `${product.name}${product.brand ? ` - ${product.brand}` : ''} | LabMedical`;
+const pageTitle = `${product.name}${product.brand ? ` - ${product.brand}` : ''} | [Nombre de Empresa]`;
 const pageDescription = product.description || `${product.name} de ${product.brand}. Registro sanitario: ${product.registro_sanitario}. Solicite cotizacion.`;
 ---
 

@@ -9,7 +9,7 @@ const { title, description = 'Proveedor profesional de equipos médicos para ins
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://labmedical.com');
+const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://[Nombre de Empresa].com');
 ---
 
 <!doctype html>
@@ -32,7 +32,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://labmedic
     <meta property="og:url" content={canonicalURL.href} />
     {ogImage && <meta property="og:image" content={ogImage} />}
     <meta property="og:locale" content="es_PE" />
-    <meta property="og:site_name" content="LabMedical" />
+    <meta property="og:site_name" content="[Nombre de Empresa]" />
 
     <!-- Tipografia profesional -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

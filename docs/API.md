@@ -1,9 +1,9 @@
-# Documentacion de API - LabMedical
+# Documentacion de API - [Nombre de Empresa]
 
 ## URL Base
 
 - **Desarrollo**: `http://localhost:3000`
-- **Produccion**: `https://labmedical-api.onrender.com`
+- **Produccion**: `https://[Nombre de Empresa]-api.onrender.com`
 
 ## Autenticacion
 
@@ -198,7 +198,7 @@ POST /api/admin/login
 
 ```json
 {
-  "email": "admin@labmedical.com",
+  "email": "admin@[Nombre de Empresa].com",
   "password": "admin123"
 }
 ```
@@ -210,7 +210,7 @@ POST /api/admin/login
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "admin": {
     "id": 1,
-    "email": "admin@labmedical.com",
+    "email": "admin@[Nombre de Empresa].com",
     "name": "Administrador"
   }
 }
