@@ -1,204 +1,109 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { brand, demoContent, formatMoney } from '../lib/demo';
+const contactHref = brand.salesContactUrl || '#contacto';
 ---
-
-<Layout title="[Nombre de Empresa] - Equipos Médicos para Instituciones de Salud">
+<Layout title="De la solicitud a la propuesta" description="Una demo comercial de gestión de cotizaciones B2B: recepción, revisión humana, propuesta y seguimiento.">
   <section class="hero">
-    <div class="container">
-      <h1>Equipos Médicos para Instituciones de Salud</h1>
-      <p class="hero-subtitle">Proveedor certificado de equipamiento médico profesional con registro sanitario DIGEMID para el sector público y privado del Perú.</p>
-      <div class="cta-buttons">
-        <a href="/productos" class="btn btn-primary">Ver Catálogo Técnico</a>
-        <a href="/cotizacion" class="btn btn-outline">Solicitar Cotización</a>
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <span class="demo-notice">Demo interactiva · datos de ejemplo</span>
+        <p class="eyebrow">Cotizaciones B2B, de principio a fin</p>
+        <h1>Una solicitud clara.<br /><em>Una propuesta lista.</em></h1>
+        <p class="lede">Reúne lo que pide el cliente, revisa el borrador con tu equipo y comparte una propuesta con seguimiento visible. Cada paso queda en su lugar.</p>
+        <div class="hero-actions">
+          <a href="/solicitud?ejemplo=1" class="button button-primary">Ver el recorrido <span aria-hidden="true">→</span></a>
+          <a href={contactHref} class="button button-secondary">Solicitar una demo</a>
+        </div>
+        <p class="hero-note">Sin envíos reales ni conexiones externas en esta versión.</p>
+      </div>
+      <div class="preview" aria-label="Vista previa del expediente de cotización de ejemplo">
+        <div class="preview-top"><span>Expediente / EJ-001</span><span class="preview-flag">EJEMPLO</span></div>
+        <div class="preview-body">
+          <div class="preview-line"><span class="tick">✓</span><div><small>Solicitud recibida</small><strong>{demoContent.company}</strong></div></div>
+          <div class="preview-line"><span class="tick">✓</span><div><small>Datos organizados</small><strong>{demoContent.quantity} × {demoContent.product}</strong></div></div>
+          <div class="preview-line active"><span class="tick">↗</span><div><small>Revisión humana</small><strong>Borrador listo para aprobar</strong></div></div>
+          <div class="preview-line future"><span class="tick">○</span><div><small>Propuesta y seguimiento</small><strong>Todo en el mismo expediente</strong></div></div>
+        </div>
+        <div class="preview-total"><span>Importe referencial de ejemplo</span><strong>{formatMoney(demoContent.quantity * demoContent.unitPrice)}</strong></div>
       </div>
     </div>
   </section>
 
-  <section class="features">
-    <div class="container">
-      <h2>Por qué las instituciones nos eligen</h2>
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/></svg>
-          </div>
-          <h3>Registro Sanitario DIGEMID</h3>
-          <p>Todos nuestros equipos cuentan con registro sanitario vigente y fichas técnicas descargables.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-          </div>
-          <h3>Documentación Completa</h3>
-          <p>RUC, constitución, certificaciones ISO y catálogos disponibles para procesos de licitación.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          </div>
-          <h3>Atención Corporativa</h3>
-          <p>Equipo de ventas especializado en el sector salud con cotizaciones en 24 horas.</p>
-        </div>
+  <section class="how container" id="como-funciona">
+    <div class="section-heading"><div><p class="eyebrow">Un proceso que se puede seguir</p><h2>Del pedido a la siguiente acción</h2></div><p>Cada etapa muestra qué se recibió, quién debe revisar y qué queda pendiente.</p></div>
+    <div class="steps">
+      <article><span>01 / Entrada</span><h3>Recibe la solicitud</h3><p>Los datos del pedido y sus observaciones quedan juntos desde el inicio.</p></article>
+      <article><span>02 / Revisión</span><h3>Prepara y valida</h3><p>El equipo ajusta cantidades, precio y condiciones antes de aprobar.</p></article>
+      <article><span>03 / Propuesta</span><h3>Presenta y sigue</h3><p>La propuesta se puede imprimir o guardar como PDF y su estado queda visible.</p></article>
+    </div>
+  </section>
+
+  <section class="benefits">
+    <div class="container benefits-grid">
+      <div><p class="eyebrow">Para equipos comerciales</p><h2>Menos pasos sueltos.<br />Más contexto compartido.</h2></div>
+      <div class="benefit-list">
+        <p><span aria-hidden="true">↗</span><strong>Un expediente por solicitud</strong><small>Pedido, borrador y propuesta conectados.</small></p>
+        <p><span aria-hidden="true">↗</span><strong>Una aprobación visible</strong><small>La revisión humana se muestra como parte del proceso.</small></p>
+        <p><span aria-hidden="true">↗</span><strong>Una base adaptable</strong><small>Marca, colores y ejemplos se cambian desde la configuración.</small></p>
       </div>
     </div>
   </section>
 
-  <section class="cta-section">
-    <div class="container">
-      <div class="cta-card">
-        <h2>¿Necesita equipar su clínica u hospital?</h2>
-        <p>Envíe su solicitud de cotización con RUC y le responderemos en menos de 24 horas hábiles.</p>
-        <a href="/cotizacion" class="btn btn-primary">Solicitar Cotización</a>
-      </div>
-    </div>
+  <section class="contact container" id="contacto">
+    <div><p class="eyebrow">Para empresas y agencias</p><h2>Muéstralo con tu marca y tu proceso.</h2><p>Esta demo usa contenido ficticio. Para evaluar una versión con tus reglas comerciales, solicita una presentación a través de tu contacto comercial.</p></div>
+    {brand.salesContactUrl ? <a href={brand.salesContactUrl} class="button button-primary">Solicitar una demo <span aria-hidden="true">→</span></a> : <div class="contact-note">Canal de contacto pendiente de configurar.<br /><small>Mientras tanto, puedes recorrer la demo completa.</small><a href="/demo">Abrir demo →</a></div>}
   </section>
 </Layout>
 
 <style>
-  .hero {
-    background: var(--azul-institucional);
-    color: white;
-    padding: 5rem 1.5rem;
-    text-align: center;
-  }
-
-  .hero h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    letter-spacing: -0.025em;
-    line-height: 1.2;
-  }
-
-  .hero-subtitle {
-    font-size: 1.125rem;
-    max-width: 640px;
-    margin: 0 auto 2rem;
-    opacity: 0.9;
-    line-height: 1.7;
-  }
-
-  .cta-buttons {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .btn {
-    padding: 0.75rem 2rem;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.9375rem;
-    display: inline-block;
-    transition: background 0.15s, transform 0.15s;
-  }
-
-  .btn:hover {
-    transform: translateY(-1px);
-  }
-
-  .btn-primary {
-    background: white;
-    color: var(--azul-institucional);
-  }
-
-  .btn-primary:hover {
-    background: #f0f4ff;
-  }
-
-  .btn-outline {
-    background: transparent;
-    color: white;
-    border: 2px solid rgba(255,255,255,0.6);
-  }
-
-  .btn-outline:hover {
-    border-color: white;
-    background: rgba(255,255,255,0.1);
-  }
-
-  .features {
-    padding: 5rem 1.5rem;
-  }
-
-  .features h2 {
-    text-align: center;
-    font-size: 2rem;
-    margin-bottom: 3rem;
-    color: var(--gris-texto);
-    font-weight: 700;
-  }
-
-  .features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .feature-card {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    border: 1px solid var(--gris-borde);
-  }
-
-  .feature-icon {
-    color: var(--azul-institucional);
-    margin-bottom: 1rem;
-  }
-
-  .feature-card h3 {
-    font-size: 1.125rem;
-    color: var(--gris-texto);
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-  }
-
-  .feature-card p {
-    color: var(--gris-secundario);
-    font-size: 0.9375rem;
-    line-height: 1.6;
-  }
-
-  .cta-section {
-    padding: 0 1.5rem 5rem;
-  }
-
-  .cta-card {
-    background: var(--azul-institucional);
-    color: white;
-    text-align: center;
-    padding: 3rem 2rem;
-    border-radius: 12px;
-  }
-
-  .cta-card h2 {
-    font-size: 1.75rem;
-    margin-bottom: 0.75rem;
-    font-weight: 700;
-  }
-
-  .cta-card p {
-    opacity: 0.9;
-    margin-bottom: 1.5rem;
-    max-width: 500px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .cta-card .btn-primary {
-    background: white;
-    color: var(--azul-institucional);
-  }
-
-  @media (max-width: 640px) {
-    .hero h1 {
-      font-size: 1.75rem;
-    }
-    .hero-subtitle {
-      font-size: 1rem;
-    }
-  }
+  .hero { background:linear-gradient(155deg,#edf4f8 0%,#f7f9fb 58%,#eaf3f1 100%); border-bottom:1px solid var(--line); overflow:hidden; }
+  .hero-grid { min-height:610px; display:grid; grid-template-columns:1.05fr .95fr; gap:7%; align-items:center; padding-block:78px 88px; }
+  .hero-copy .eyebrow { margin:28px 0 14px; }
+  h1 { margin-bottom:22px; color:var(--primary-dark); font-size:clamp(2.35rem,4.2vw,3.55rem); }
+  h1 em { color:var(--accent); font-style:normal; }
+  .lede { font-size:1.08rem; color:#435a6c; max-width:560px; line-height:1.7; }
+  .hero-actions { display:flex; gap:12px; flex-wrap:wrap; margin-top:32px; }
+  .hero-note { font-size:.76rem; color:#657789; margin:15px 0 0; }
+  .preview { position:relative; background:#fff; border:1px solid #d8e2e9; border-radius:18px; box-shadow:0 25px 65px rgba(24,54,87,.16); transform:rotate(1deg); }
+  .preview::before { content:''; position:absolute; inset:16px -16px -16px 16px; border:1px solid #cadcdd; border-radius:18px; z-index:-1; background:#e8f4f1; transform:rotate(2deg); }
+  .preview-top { display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid var(--line); color:var(--primary-dark); font-size:.78rem; font-weight:800; letter-spacing:.04em; }
+  .preview-flag { color:var(--accent); background:var(--mint); padding:4px 8px; border-radius:4px; font-size:.64rem; letter-spacing:.14em; }
+  .preview-body { padding:19px 24px 5px; }
+  .preview-line { display:grid; grid-template-columns:32px 1fr; gap:13px; min-height:74px; position:relative; }
+  .preview-line:not(:last-child)::after { content:''; position:absolute; top:30px; bottom:0; left:15px; width:1px; background:#cbd9df; }
+  .tick { width:31px; height:31px; display:grid; place-items:center; border-radius:50%; background:var(--mint); color:var(--accent); font-weight:800; z-index:1; }
+  .active .tick { color:#fff; background:var(--primary); }
+  .future .tick { color:#8ba0ac; background:#f2f5f7; }
+  .preview-line small { display:block; color:#70808e; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; }
+  .preview-line strong { display:block; color:var(--primary-dark); font-size:.91rem; margin-top:2px; }
+  .preview-total { display:flex; justify-content:space-between; align-items:center; gap:15px; margin:8px 24px 24px; padding:17px; border-radius:10px; background:#eff5f8; color:var(--primary-dark); }
+  .preview-total span { font-size:.75rem; color:#5a6c7d; }
+  .preview-total strong { font:800 1.25rem Manrope,sans-serif; white-space:nowrap; }
+  .how { padding-block:88px; }
+  .section-heading { display:flex; justify-content:space-between; gap:30px; align-items:end; margin-bottom:30px; }
+  .section-heading h2 { margin-bottom:0; }
+  .section-heading>p { max-width:310px; color:var(--muted); margin:0; }
+  .steps { display:grid; grid-template-columns:repeat(3,1fr); gap:15px; }
+  .steps article { border:1px solid var(--line); background:#fff; border-radius:14px; padding:25px; min-height:205px; }
+  .steps article>span { display:block; color:var(--accent); text-transform:uppercase; font-size:.73rem; font-weight:800; letter-spacing:.12em; padding-bottom:22px; border-bottom:1px solid var(--line); }
+  .steps h3 { margin:20px 0 8px; font-size:1.18rem; }
+  .steps p { color:var(--muted); font-size:.89rem; margin:0; }
+  .benefits { background:var(--primary-dark); color:#fff; padding:75px 0; }
+  .benefits .eyebrow { color:#84dfd1; }
+  .benefits-grid { display:grid; grid-template-columns:.9fr 1.1fr; gap:10%; }
+  .benefits h2 { line-height:1.25; }
+  .benefit-list { display:grid; gap:0; }
+  .benefit-list p { display:grid; grid-template-columns:30px 1fr; column-gap:14px; margin:0; padding:16px 0; border-bottom:1px solid #3b5870; }
+  .benefit-list p>span { color:#7de0d1; font-size:1.3rem; }
+  .benefit-list strong { font-size:.96rem; }
+  .benefit-list small { grid-column:2; color:#bfd0df; font-size:.81rem; }
+  .contact { padding-block:82px 20px; display:flex; justify-content:space-between; gap:40px; align-items:center; }
+  .contact>div:first-child { max-width:640px; }
+  .contact p:not(.eyebrow) { color:var(--muted); }
+  .contact-note { border:1px solid var(--line); background:#fff; border-radius:12px; padding:18px; font-size:.82rem; color:var(--muted); min-width:245px; }
+  .contact-note small { display:block; margin:6px 0 12px; }
+  .contact-note a { color:var(--primary); font-weight:800; }
+  @media(max-width:850px) { .hero-grid { grid-template-columns:1fr; gap:50px; } .preview { width:min(100%,560px); margin:auto; } .benefits-grid { gap:5%; } }
+  @media(max-width:640px) { .hero-grid { padding-block:55px 65px; } .preview { transform:none; } .preview::before { display:none; } .section-heading,.contact { flex-direction:column; align-items:start; } .steps,.benefits-grid { grid-template-columns:1fr; } .how { padding-block:62px; } .benefits { padding-block:57px; } .contact { padding-block:62px 0; } }
 </style>

@@ -1,0 +1,91 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Nueva solicitud" description="Crea una solicitud ficticia para recorrer la demo comercial.">
+  <div class="container request-page">
+    <div class="page-intro"><a href="/" class="back">← Volver al inicio</a><span class="demo-notice">Simulación · no se envían datos</span><p class="eyebrow">Paso 1 / Entrada</p><h1>Nueva solicitud</h1><p>Registra qué necesita el cliente. Este formulario guarda datos solo en este navegador para mostrar el recorrido.</p></div>
+    <div class="request-layout">
+      <form id="request-form" class="panel request-form">
+        <div class="form-heading"><h2>Datos del pedido</h2><button class="text-button" type="button" id="fill-example">Cargar ejemplo</button></div>
+        <div class="fields-row">
+          <label class="field">Empresa de ejemplo <input name="company" required minlength="2" maxlength="100" placeholder="Ej. Suministros Horizonte S.A.C. (ejemplo)" autocomplete="off" /></label>
+          <label class="field">Contacto de ejemplo <input name="contact" required minlength="2" maxlength="100" placeholder="Ej. Área de compras (ejemplo)" autocomplete="off" /></label>
+        </div>
+        <div class="fields-row">
+          <label class="field">Producto de ejemplo <input name="product" required minlength="2" maxlength="120" placeholder="Ej. Estación de empaque modular (ejemplo)" autocomplete="off" /></label>
+          <label class="field">Cantidad <input name="quantity" required type="number" min="1" max="10000" step="1" placeholder="12" /></label>
+        </div>
+        <label class="field">Observaciones <textarea name="request" maxlength="500" placeholder="Condiciones, plazos o aclaraciones del pedido"></textarea></label>
+        <div id="form-error" class="error-box" role="alert" hidden></div>
+        <div class="form-bottom"><p>Usa solo datos ficticios. La solicitud no sale de tu navegador.</p><button type="submit" class="button button-primary">Registrar solicitud <span aria-hidden="true">→</span></button></div>
+      </form>
+      <aside class="side-card"><span class="side-icon" aria-hidden="true">↗</span><h2>Lo que ocurre después</h2><ol><li>La solicitud aparece en el panel.</li><li>Se prepara un borrador con importe de ejemplo.</li><li>Una persona revisa y aprueba.</li><li>Se genera la propuesta y se sigue su estado.</li></ol><p>Importes, empresas y productos son ficticios.</p></aside>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { demoContent, readQuotes, saveQuotes, type DemoQuote } from '../lib/demo';
+  const form = document.querySelector<HTMLFormElement>('#request-form')!;
+  const errorBox = document.querySelector<HTMLElement>('#form-error')!;
+  function fillExample() {
+    (form.elements.namedItem('company') as HTMLInputElement).value = demoContent.company;
+    (form.elements.namedItem('contact') as HTMLInputElement).value = demoContent.contact;
+    (form.elements.namedItem('product') as HTMLInputElement).value = demoContent.product;
+    (form.elements.namedItem('quantity') as HTMLInputElement).value = String(demoContent.quantity);
+    (form.elements.namedItem('request') as HTMLTextAreaElement).value = demoContent.request;
+  }
+  document.querySelector('#fill-example')?.addEventListener('click', fillExample);
+  if (new URLSearchParams(location.search).get('ejemplo') === '1') fillExample();
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    errorBox.hidden = true;
+    if (!form.reportValidity()) return;
+    try {
+      const values = new FormData(form);
+      const previous = readQuotes();
+      const quantity = Number(values.get('quantity'));
+      if (!Number.isSafeInteger(quantity) || quantity < 1 || quantity > 10000) throw new Error('Indica una cantidad válida entre 1 y 10 000.');
+      const id = `EJ-${String(Math.max(0, ...previous.map(item => Number(item.id.replace('EJ-', '')) || 0)) + 1).padStart(3, '0')}`;
+      const now = new Date().toISOString();
+      const quote: DemoQuote = {
+        id, company: String(values.get('company')).trim(), contact: String(values.get('contact')).trim(),
+        product: String(values.get('product')).trim(), quantity, unitPrice: demoContent.unitPrice,
+        request: String(values.get('request')).trim(), terms: demoContent.terms,
+        stage: 'recibida', createdAt: now, updatedAt: now,
+      };
+      saveQuotes([quote, ...previous]);
+      location.href = `/demo?id=${encodeURIComponent(id)}`;
+    } catch (error) {
+      errorBox.textContent = error instanceof Error ? error.message : 'No se pudo registrar la solicitud. Inténtalo de nuevo.';
+      errorBox.hidden = false;
+    }
+  });
+</script>
+
+<style>
+  .request-page { padding-block:48px 10px; }
+  .page-intro { max-width:700px; }
+  .back { color:var(--primary); font-weight:700; font-size:.85rem; display:block; width:max-content; margin-bottom:22px; text-decoration:none; }
+  .page-intro .eyebrow { margin:25px 0 10px; }
+  h1 { font-size:clamp(2.4rem,5vw,3.7rem); margin-bottom:12px; }
+  .page-intro>p:last-child { color:var(--muted); max-width:600px; }
+  .request-layout { display:grid; grid-template-columns:minmax(0,1fr) 285px; gap:22px; margin-top:32px; align-items:start; }
+  .request-form { padding:32px; }
+  .form-heading { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:26px; }
+  .form-heading h2 { font-size:1.35rem; margin:0; }
+  .text-button { border:0; background:none; color:var(--primary); text-decoration:underline; font-weight:800; padding:8px; }
+  .fields-row { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:18px; }
+  .request-form>.field { margin-top:4px; }
+  .form-bottom { display:flex; align-items:center; justify-content:space-between; gap:20px; border-top:1px solid var(--line); margin-top:26px; padding-top:23px; }
+  .form-bottom p { font-size:.8rem; color:var(--muted); max-width:260px; margin:0; }
+  .side-card { background:var(--primary-dark); color:#fff; border-radius:16px; padding:25px; }
+  .side-icon { display:grid; place-items:center; width:40px; height:40px; border-radius:10px; background:#356080; color:#a5eadf; font-size:1.5rem; }
+  .side-card h2 { font-size:1.2rem; margin:22px 0 14px; }
+  .side-card ol { padding-left:20px; font-size:.85rem; line-height:1.6; }
+  .side-card li { padding-bottom:10px; }
+  .side-card p { border-top:1px solid #45617a; padding-top:15px; margin:10px 0 0; color:#c8d6e1; font-size:.75rem; }
+  [hidden] { display:none!important; }
+  @media(max-width:850px) { .request-layout { grid-template-columns:1fr; } .side-card { display:none; } }
+  @media(max-width:640px) { .request-form { padding:21px; } .fields-row { grid-template-columns:1fr; } .form-bottom { flex-direction:column; align-items:stretch; } }
+</style>

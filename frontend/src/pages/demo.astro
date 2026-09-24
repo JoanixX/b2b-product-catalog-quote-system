@@ -1,0 +1,163 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Panel de cotizaciones" description="Sigue cada solicitud de ejemplo desde la entrada hasta la propuesta.">
+  <div class="container workspace">
+    <div class="workspace-header">
+      <div><span class="demo-notice">Demo local · sin envíos reales</span><p class="eyebrow">Panel comercial</p><h1>Solicitudes y propuestas</h1><p class="muted">El estado de cada pedido queda visible para saber cuál es la siguiente acción.</p></div>
+      <a class="button button-primary" href="/solicitud">Nueva solicitud <span aria-hidden="true">＋</span></a>
+    </div>
+    <div class="summary-row" aria-label="Resumen de solicitudes de ejemplo">
+      <div><span>Solicitudes</span><strong id="total-count">—</strong></div>
+      <div><span>Por revisar</span><strong id="review-count">—</strong></div>
+      <div><span>Con propuesta</span><strong id="proposal-count">—</strong></div>
+      <button id="reset-demo" type="button">Restablecer ejemplo ↺</button>
+    </div>
+    <div id="page-error" class="error-box" role="alert" hidden></div>
+    <div class="workspace-grid">
+      <aside class="panel list-panel"><div class="panel-title"><h2>Expedientes</h2><span>Ejemplos</span></div><div id="quote-list" aria-label="Solicitudes guardadas"><p class="loading">Cargando solicitudes…</p></div></aside>
+      <section class="panel detail-panel" aria-labelledby="detail-title"><div id="quote-detail" aria-live="polite"><p class="loading">Cargando expediente…</p></div></section>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { demoContent, escapeHtml, formatDate, formatMoney, readQuotes, resetQuotes, saveQuotes, stageLabels, type DemoQuote, type Stage } from '../lib/demo';
+  const list = document.querySelector<HTMLElement>('#quote-list')!;
+  const detail = document.querySelector<HTMLElement>('#quote-detail')!;
+  const errorBox = document.querySelector<HTMLElement>('#page-error')!;
+  let quotes: DemoQuote[] = [];
+  let currentId = new URLSearchParams(location.search).get('id');
+
+  function showError(message: string) { errorBox.textContent = message; errorBox.hidden = false; }
+  function clearError() { errorBox.textContent = ''; errorBox.hidden = true; }
+  function current(): DemoQuote | undefined { return quotes.find(item => item.id === currentId); }
+  function persist() {
+    saveQuotes(quotes);
+    clearError();
+    render();
+  }
+  function actionMarkup(quote: DemoQuote): string {
+    if (quote.stage === 'recibida') return `<div class="next-action"><div><strong>Siguiente paso: preparar borrador</strong><p>El importe inicial usa el precio referencial de esta demo. Una persona podrá modificarlo antes de aprobar.</p></div><button class="button button-primary" data-action="draft">Preparar borrador →</button></div>`;
+    if (quote.stage === 'borrador') return `<div class="review-box"><div class="review-heading"><div><span class="eyebrow">Revisión humana</span><h3>Ajusta antes de aprobar</h3></div><span class="status borrador">Borrador</span></div><div class="review-fields"><label class="field">Cantidad<input id="review-quantity" type="number" min="1" max="10000" step="1" value="${quote.quantity}" /></label><label class="field">Precio unitario de ejemplo (S/)<input id="review-price" type="number" min="0" max="10000000" step="1" value="${quote.unitPrice}" /></label></div><label class="field">Condiciones de ejemplo<textarea id="review-terms" maxlength="500">${escapeHtml(quote.terms)}</textarea></label><p class="review-hint">Verifica el pedido y el importe. La aprobación se registra en esta demo local.</p><div class="review-actions"><button class="button button-secondary" data-action="save">Guardar cambios</button><button class="button button-primary" data-action="approve">Aprobar borrador →</button></div></div>`;
+    if (quote.stage === 'aprobada') return `<div class="next-action"><div><strong>Borrador aprobado</strong><p>La revisión humana está registrada. Genera la vista de propuesta para imprimirla o guardarla como PDF.</p></div><button class="button button-primary" data-action="proposal">Generar propuesta →</button></div>`;
+    if (quote.stage === 'propuesta') return `<div class="next-action"><div><strong>Propuesta generada</strong><p>La propuesta se puede revisar en una página imprimible. El seguimiento se actualiza desde aquí.</p></div><div class="action-stack"><a class="button button-primary" href="/propuesta?id=${encodeURIComponent(quote.id)}">Ver propuesta ↗</a><button class="button button-secondary" data-action="followup">Marcar en seguimiento</button></div></div>`;
+    return `<div class="next-action"><div><strong>Seguimiento en curso</strong><p>El expediente conserva el pedido, la aprobación y la propuesta de ejemplo.</p></div><a class="button button-primary" href="/propuesta?id=${encodeURIComponent(quote.id)}">Ver propuesta ↗</a></div>`;
+  }
+  function render() {
+    document.querySelector('#total-count')!.textContent = String(quotes.length);
+    document.querySelector('#review-count')!.textContent = String(quotes.filter(q => q.stage === 'recibida' || q.stage === 'borrador').length);
+    document.querySelector('#proposal-count')!.textContent = String(quotes.filter(q => q.stage === 'propuesta' || q.stage === 'seguimiento').length);
+    if (!quotes.length) {
+      list.innerHTML = '<div class="empty-list"><p>Aún no hay solicitudes en esta demo.</p><a href="/solicitud?ejemplo=1">Registrar una solicitud de ejemplo →</a></div>';
+      detail.innerHTML = '<div class="empty-detail"><span aria-hidden="true">↗</span><h2 id="detail-title">Comienza con una solicitud</h2><p>Carga un pedido ficticio para recorrer la revisión, aprobación y propuesta.</p><button class="button button-primary" data-action="load">Cargar ejemplo</button></div>';
+      return;
+    }
+    if (!current()) currentId = quotes[0].id;
+    list.innerHTML = quotes.map(q => `<a class="quote-item ${q.id === currentId ? 'selected' : ''}" href="/demo?id=${encodeURIComponent(q.id)}" ${q.id === currentId ? 'aria-current="page"' : ''}><span class="item-top"><strong>${escapeHtml(q.id)}</strong><span class="status ${q.stage}">${stageLabels[q.stage] || 'Estado desconocido'}</span></span><span class="item-company">${escapeHtml(q.company)}</span><span class="item-meta">${formatDate(q.createdAt)} · ${q.quantity} unidades</span></a>`).join('');
+    const q = current()!;
+    const stageOrder: Stage[] = ['recibida','borrador','aprobada','propuesta','seguimiento'];
+    const currentStep = stageOrder.indexOf(q.stage);
+    detail.innerHTML = `<div class="detail-head"><div><span class="eyebrow">Expediente ${escapeHtml(q.id)} · Ejemplo</span><h2 id="detail-title">${escapeHtml(q.company)}</h2><p>Registrado ${formatDate(q.createdAt)}</p></div><span class="status ${q.stage}">${stageLabels[q.stage] || 'Estado desconocido'}</span></div>
+      <div class="stage-track" aria-label="Progreso del expediente">${stageOrder.map((stage, index) => `<div class="stage-step ${index <= currentStep ? 'done' : ''}" ${index === currentStep ? 'aria-current="step"' : ''}><span>${index < currentStep ? '✓' : index + 1}</span><small>${stage === 'recibida' ? 'Recibida' : stage === 'borrador' ? 'Borrador' : stage === 'aprobada' ? 'Aprobada' : stage === 'propuesta' ? 'Propuesta' : 'Seguimiento'}</small></div>`).join('')}</div>
+      <div class="detail-content"><div class="data-section"><h3>Datos organizados de la solicitud</h3><div class="data-grid"><div><span>Contacto</span><strong>${escapeHtml(q.contact)}</strong></div><div><span>Producto</span><strong>${escapeHtml(q.product)}</strong></div><div><span>Cantidad</span><strong>${q.quantity} unidades</strong></div><div><span>Precio unitario referencial</span><strong>${formatMoney(q.unitPrice)}</strong></div></div><div class="observation"><span>Observaciones del pedido</span><p>${escapeHtml(q.request || 'Sin observaciones. Confirma las condiciones antes de aprobar.')}</p></div></div>
+      <div class="amount-strip"><div><span>Importe de ejemplo</span><small>${escapeHtml(demoContent.taxNote)}</small></div><strong>${formatMoney(q.quantity * q.unitPrice)}</strong></div>${actionMarkup(q)}</div>`;
+  }
+  function saveReview(q: DemoQuote): boolean {
+    const quantity = Number((document.querySelector('#review-quantity') as HTMLInputElement).value);
+    const price = Number((document.querySelector('#review-price') as HTMLInputElement).value);
+    const terms = (document.querySelector('#review-terms') as HTMLTextAreaElement).value.trim();
+    if (!Number.isSafeInteger(quantity) || quantity < 1 || quantity > 10000) { showError('Indica una cantidad entera entre 1 y 10 000.'); return false; }
+    if (!Number.isFinite(price) || price < 0 || price > 10000000) { showError('Indica un precio entre 0 y 10 000 000.'); return false; }
+    q.quantity = quantity; q.unitPrice = price; q.terms = terms || 'Condiciones por confirmar. (Ejemplo)'; q.updatedAt = new Date().toISOString();
+    return true;
+  }
+  detail.addEventListener('click', (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-action]');
+    if (!button) return;
+    try {
+      const action = button.dataset.action;
+      if (action === 'load') { quotes = resetQuotes(); currentId = quotes[0].id; persist(); return; }
+      const q = current(); if (!q) return;
+      if (action === 'draft' && q.stage === 'recibida') q.stage = 'borrador';
+      else if (action === 'save' && q.stage === 'borrador') { if (!saveReview(q)) return; }
+      else if (action === 'approve' && q.stage === 'borrador') { if (!saveReview(q)) return; q.stage = 'aprobada'; }
+      else if (action === 'proposal' && q.stage === 'aprobada') q.stage = 'propuesta';
+      else if (action === 'followup' && q.stage === 'propuesta') q.stage = 'seguimiento';
+      else return;
+      q.updatedAt = new Date().toISOString(); persist();
+    } catch (error) { showError(error instanceof Error ? error.message : 'No se pudo actualizar el expediente.'); }
+  });
+  document.querySelector('#reset-demo')?.addEventListener('click', () => {
+    if (!confirm('Se reemplazarán las solicitudes guardadas en este navegador por el ejemplo inicial. ¿Continuar?')) return;
+    try { quotes = resetQuotes(); currentId = quotes[0].id; persist(); } catch (error) { showError(error instanceof Error ? error.message : 'No se pudo restablecer la demo.'); }
+  });
+  try { quotes = readQuotes(); render(); } catch (error) { showError(error instanceof Error ? error.message : 'No se pudo cargar la demo.'); list.innerHTML = ''; detail.innerHTML = '<div class="empty-detail"><h2 id="detail-title">No se pudo cargar la demo</h2><p>Usa «Restablecer ejemplo» para volver a empezar.</p></div>'; }
+</script>
+
+<style>
+  .workspace { padding-block:42px 12px; }
+  .workspace-header { display:flex; justify-content:space-between; align-items:end; gap:20px; }
+  .workspace-header .eyebrow { margin:20px 0 8px; }
+  h1 { font-size:clamp(2rem,4vw,3.1rem); margin-bottom:9px; }
+  .workspace-header .muted { max-width:580px; margin:0; }
+  .summary-row { display:grid; grid-template-columns:repeat(3,1fr) auto; gap:12px; margin:32px 0 18px; }
+  .summary-row>div { background:#fff; border:1px solid var(--line); border-radius:11px; padding:15px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .summary-row span { color:var(--muted); font-size:.78rem; font-weight:700; }
+  .summary-row strong { color:var(--primary-dark); font:800 1.4rem Manrope,sans-serif; }
+  .summary-row button { border:0; background:none; color:var(--primary); font-size:.78rem; font-weight:800; text-decoration:underline; }
+  .workspace-grid { display:grid; grid-template-columns:300px minmax(0,1fr); gap:18px; align-items:start; }
+  .list-panel,.detail-panel { min-height:430px; box-shadow:none; }
+  .panel-title { display:flex; align-items:center; justify-content:space-between; padding:21px 21px 14px; }
+  .panel-title h2 { font-size:1rem; margin:0; }
+  .panel-title span { font-size:.68rem; text-transform:uppercase; color:var(--muted); font-weight:800; letter-spacing:.12em; }
+  :global(.quote-item) { display:block; padding:17px 20px; border-top:1px solid var(--line); border-left:3px solid transparent; text-decoration:none; }
+  :global(.quote-item:hover),:global(.quote-item.selected) { background:#f2f7fa; border-left-color:var(--accent); }
+  :global(.item-top) { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  :global(.item-top strong) { color:var(--primary-dark); font-size:.78rem; }
+  :global(.item-top .status) { font-size:.65rem; padding:.25rem .45rem; }
+  :global(.item-company) { display:block; font-size:.86rem; font-weight:800; margin-top:10px; }
+  :global(.item-meta) { display:block; font-size:.72rem; color:var(--muted); margin-top:5px; }
+  :global(.detail-head) { display:flex; align-items:start; justify-content:space-between; gap:18px; padding:26px 28px 21px; border-bottom:1px solid var(--line); }
+  :global(.detail-head h2) { font-size:1.45rem; margin:8px 0 4px; }
+  :global(.detail-head p) { color:var(--muted); font-size:.75rem; margin:0; }
+  :global(.stage-track) { display:grid; grid-template-columns:repeat(5,1fr); padding:22px 28px; background:#fbfcfd; border-bottom:1px solid var(--line); }
+  :global(.stage-step) { position:relative; display:flex; flex-direction:column; align-items:center; gap:5px; color:#98a6b1; text-align:center; }
+  :global(.stage-step:not(:last-child)::after) { content:''; position:absolute; width:calc(100% - 30px); height:2px; background:#dfe6eb; left:calc(50% + 15px); top:12px; }
+  :global(.stage-step.done:not(:last-child)::after) { background:#77beb4; }
+  :global(.stage-step span) { display:grid; place-items:center; width:26px; height:26px; border:1px solid #cbd6df; border-radius:50%; background:#fff; font-size:.68rem; font-weight:800; z-index:1; }
+  :global(.stage-step.done span) { background:var(--accent); border-color:var(--accent); color:#fff; }
+  :global(.stage-step small) { font-size:.66rem; font-weight:800; }
+  :global(.stage-step.done small) { color:var(--primary-dark); }
+  :global(.detail-content) { padding:28px; }
+  :global(.data-section h3) { font-size:1rem; margin-bottom:20px; }
+  :global(.data-grid) { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  :global(.data-grid span),:global(.observation span) { display:block; color:var(--muted); font-size:.7rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+  :global(.data-grid strong) { display:block; margin-top:5px; font-size:.86rem; }
+  :global(.observation) { border-top:1px solid var(--line); margin-top:22px; padding-top:17px; }
+  :global(.observation p) { margin:7px 0 0; color:#3f5263; font-size:.85rem; }
+  :global(.amount-strip) { display:flex; align-items:center; justify-content:space-between; gap:15px; border-radius:11px; background:#eff5f7; padding:17px 19px; margin:24px 0; }
+  :global(.amount-strip span) { display:block; font-size:.76rem; font-weight:800; color:var(--primary-dark); }
+  :global(.amount-strip small) { display:block; color:var(--muted); font-size:.68rem; margin-top:3px; }
+  :global(.amount-strip strong) { color:var(--primary-dark); font:800 1.32rem Manrope,sans-serif; white-space:nowrap; }
+  :global(.next-action) { display:flex; align-items:center; justify-content:space-between; gap:20px; border-top:1px solid var(--line); padding-top:22px; }
+  :global(.next-action strong) { font-size:.9rem; }
+  :global(.next-action p) { color:var(--muted); font-size:.77rem; max-width:410px; margin:4px 0 0; }
+  :global(.action-stack),:global(.review-actions) { display:flex; gap:8px; flex-wrap:wrap; }
+  :global(.review-box) { border:1px solid #e7c891; background:#fffbf4; border-radius:11px; padding:21px; }
+  :global(.review-heading) { display:flex; justify-content:space-between; align-items:start; gap:12px; }
+  :global(.review-heading h3) { font-size:1rem; margin:3px 0 15px; }
+  :global(.review-fields) { display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:14px; }
+  :global(.review-hint) { color:#785b34; font-size:.76rem; margin:13px 0; }
+  :global(.empty-list) { padding:22px; font-size:.83rem; color:var(--muted); }
+  :global(.empty-list a) { color:var(--primary); font-weight:800; }
+  :global(.empty-detail) { text-align:center; padding:80px 22px; max-width:450px; margin:auto; }
+  :global(.empty-detail>span) { display:grid; place-items:center; width:52px; height:52px; background:var(--mint); color:var(--accent); border-radius:14px; margin:0 auto 20px; font-size:1.8rem; }
+  :global(.empty-detail h2) { font-size:1.4rem; }
+  :global(.empty-detail p) { color:var(--muted); font-size:.85rem; }
+  :global(.loading) { padding:22px; color:var(--muted); font-size:.85rem; }
+  [hidden] { display:none!important; }
+  @media(max-width:980px) { .workspace-grid { grid-template-columns:250px minmax(0,1fr); } .summary-row { grid-template-columns:repeat(3,1fr); } .summary-row button { grid-column:1/-1; justify-self:end; } }
+  @media(max-width:760px) { .workspace-header { align-items:start; flex-direction:column; } .workspace-grid { grid-template-columns:1fr; } .list-panel { min-height:unset; } .detail-head,.detail-content { padding:20px; } }
+  @media(max-width:560px) { .summary-row { gap:6px; } .summary-row>div { flex-direction:column; align-items:start; padding:12px; } .summary-row span { font-size:.65rem; } :global(.detail-head) { flex-direction:column; } :global(.stage-track) { padding:18px 7px; } :global(.stage-step small) { font-size:.56rem; } :global(.data-grid),:global(.review-fields) { grid-template-columns:1fr; gap:14px; } :global(.next-action),:global(.amount-strip) { flex-direction:column; align-items:stretch; } :global(.next-action .button),:global(.review-actions .button) { width:100%; } }
+</style>

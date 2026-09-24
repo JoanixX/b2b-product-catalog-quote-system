@@ -1,0 +1,204 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="[Nombre de Empresa] - Equipos Médicos para Instituciones de Salud">
+  <section class="hero">
+    <div class="container">
+      <h1>Equipos Médicos para Instituciones de Salud</h1>
+      <p class="hero-subtitle">Proveedor certificado de equipamiento médico profesional con registro sanitario DIGEMID para el sector público y privado del Perú.</p>
+      <div class="cta-buttons">
+        <a href="/productos" class="btn btn-primary">Ver Catálogo Técnico</a>
+        <a href="/cotizacion" class="btn btn-outline">Solicitar Cotización</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="container">
+      <h2>Por qué las instituciones nos eligen</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/></svg>
+          </div>
+          <h3>Registro Sanitario DIGEMID</h3>
+          <p>Todos nuestros equipos cuentan con registro sanitario vigente y fichas técnicas descargables.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </div>
+          <h3>Documentación Completa</h3>
+          <p>RUC, constitución, certificaciones ISO y catálogos disponibles para procesos de licitación.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <h3>Atención Corporativa</h3>
+          <p>Equipo de ventas especializado en el sector salud con cotizaciones en 24 horas.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-card">
+        <h2>¿Necesita equipar su clínica u hospital?</h2>
+        <p>Envíe su solicitud de cotización con RUC y le responderemos en menos de 24 horas hábiles.</p>
+        <a href="/cotizacion" class="btn btn-primary">Solicitar Cotización</a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hero {
+    background: var(--azul-institucional);
+    color: white;
+    padding: 5rem 1.5rem;
+    text-align: center;
+  }
+
+  .hero h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+  }
+
+  .hero-subtitle {
+    font-size: 1.125rem;
+    max-width: 640px;
+    margin: 0 auto 2rem;
+    opacity: 0.9;
+    line-height: 1.7;
+  }
+
+  .cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 0.75rem 2rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    display: inline-block;
+    transition: background 0.15s, transform 0.15s;
+  }
+
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .btn-primary {
+    background: white;
+    color: var(--azul-institucional);
+  }
+
+  .btn-primary:hover {
+    background: #f0f4ff;
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: white;
+    border: 2px solid rgba(255,255,255,0.6);
+  }
+
+  .btn-outline:hover {
+    border-color: white;
+    background: rgba(255,255,255,0.1);
+  }
+
+  .features {
+    padding: 5rem 1.5rem;
+  }
+
+  .features h2 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 3rem;
+    color: var(--gris-texto);
+    font-weight: 700;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .feature-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    border: 1px solid var(--gris-borde);
+  }
+
+  .feature-icon {
+    color: var(--azul-institucional);
+    margin-bottom: 1rem;
+  }
+
+  .feature-card h3 {
+    font-size: 1.125rem;
+    color: var(--gris-texto);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+
+  .feature-card p {
+    color: var(--gris-secundario);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  .cta-section {
+    padding: 0 1.5rem 5rem;
+  }
+
+  .cta-card {
+    background: var(--azul-institucional);
+    color: white;
+    text-align: center;
+    padding: 3rem 2rem;
+    border-radius: 12px;
+  }
+
+  .cta-card h2 {
+    font-size: 1.75rem;
+    margin-bottom: 0.75rem;
+    font-weight: 700;
+  }
+
+  .cta-card p {
+    opacity: 0.9;
+    margin-bottom: 1.5rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .cta-card .btn-primary {
+    background: white;
+    color: var(--azul-institucional);
+  }
+
+  @media (max-width: 640px) {
+    .hero h1 {
+      font-size: 1.75rem;
+    }
+    .hero-subtitle {
+      font-size: 1rem;
+    }
+  }
+</style>

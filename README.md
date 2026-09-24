@@ -1,160 +1,59 @@
-# 🏢 B2B Product Catalog & Quotation Platform
-Plataforma web full-stack de catálogo de productos con sistema de cotizaciones orientada a empresas B2B.
+# Trazo — demo comercial de cotizaciones B2B
 
-Este proyecto demuestra cómo construir una solución profesional para compañías que no venden directamente en línea, sino que generan leads y gestionan ventas mediante cotizaciones.
+Esta rama (`feat/commercial-demo`) es una demostración local y ficticia de un proceso de cotización: **solicitud → datos organizados → borrador → revisión y aprobación humana → propuesta → seguimiento**. La rama `main` conserva el proyecto original. El backend Rust original permanece en `backend/` sin modificaciones.
 
----
+Todas las empresas, personas, productos e importes mostrados en la demo son **ejemplos ficticios**. La interfaz comercial no envía correos, mensajes ni datos a servicios externos. Su estado se guarda únicamente en el `localStorage` del navegador.
 
-## 🚀 Características
+## Ejecutar la demo
 
-### Públicas
-* Catálogo de productos con búsqueda y filtros
-* Navegación por categorías
-* Página de detalle con especificaciones técnicas
-* Visualización de fichas técnicas (PDF)
-* Formulario de solicitud de cotización
-* Validación de RUC peruano (algoritmo Módulo 11)
+Requisitos: Node.js 18 o superior y npm. Desde la raíz de este repositorio:
 
-### Administrativas
-* Autenticación segura (JWT + Argon2id)
-* CRUD completo de productos y categorías
-* Gestión de solicitudes de cotización
-* Carga de archivos (imágenes y PDFs)
-* Panel básico de administración
-
----
-
-## 🧠 Stack Tecnológico
-
-### Backend
-* Rust
-* Axum
-* PostgreSQL (compatible con Neon)
-* Autenticación JWT
-* Hashing con Argon2id
-* Almacenamiento compatible con S3
-
-### Frontend
-* Astro
-* TypeScript
-* Nano Stores
-* CSS vanilla
-
----
-
-## 🏗️ Estructura del Proyecto
-
-b2b-product-catalog-quote-system/
-├── backend/          # API REST en Rust/Axum
-├── frontend/         # Aplicación web Astro/TypeScript
-├── scripts/          # Utilidades (no incluidas en producción)
-├── docs/             # Documentación
-└── README.md
-
----
-
-## ⚙️ Instalación y Ejecución Local
-
-### Prerrequisitos
-* Rust 1.70+
-* Node.js 18+
-* Base de datos PostgreSQL (local o en la nube)
-
----
-
-### 🔧 Backend
-cd backend
-cp .env.example .env
-
-Editar variables de entorno:
-DATABASE_URL=postgresql://user:password@localhost:5432/db
-JWT_SECRET=your-secret-key
-
-Ejecutar:
-cargo run
-
-El backend estará disponible en:
-http://localhost:3000
-
----
-
-### 💻 Frontend
+```powershell
 cd frontend
-cp .env.example .env
-npm install
+npm ci
 npm run dev
+```
 
-El frontend estará disponible en:
-http://localhost:4321
+Abrir `http://localhost:4321`. No hace falta configurar `.env` ni iniciar PostgreSQL o Rust para la demo. Para verificar el paquete estático:
 
----
+```powershell
+npm run build
+npm run preview
+```
 
-### ▶️ Ejecución completa
-Terminal 1:
-cd backend
-cargo run
+La demo local se inicia vacía. En la landing, **Ver el recorrido** abre el formulario con datos ficticios precargados. Desde el panel también puedes pulsar **Cargar ejemplo**. **Restablecer ejemplo** sustituye los datos guardados en ese navegador por una solicitud inicial.
 
-Terminal 2:
-cd frontend
-npm run dev
+## Personalizar marca y contenido
 
----
+Edita `frontend/src/lib/demo.ts`:
 
-## 🔐 Seguridad
-* Autenticación mediante JWT con expiración
-* Contraseñas hasheadas con Argon2id
-* Validación de RUC peruano
-* Sanitización de entradas (prevención XSS)
-* Restricción de tipos de archivo (JPEG, WebP, PDF)
-* Manejo seguro de errores (sin exposición de datos internos)
+- `brand.name`, `descriptor`, `primary`, `primaryDark`, `accent` y `logoUrl` controlan la marca. Coloca el logo en `frontend/public/` y usa una ruta como `/logo-agencia.svg`.
+- `brand.salesContactUrl` habilita el enlace real de la llamada a la acción. Déjalo vacío hasta configurar un canal autorizado; la página avisará que el contacto está pendiente.
+- `demoContent` contiene empresa, contacto, producto, importe, condiciones y observaciones de ejemplo. Mantenlos ficticios y señalados como ejemplo.
 
----
+La simulación mantiene un único tipo de producto por solicitud y calcula el importe como cantidad × precio unitario, sin impuestos ni flete. Los datos creados durante el recorrido se guardan en el navegador donde se hizo la demostración. No se incluyen credenciales de demo.
 
-## 🗄️ Esquema de Base de Datos
-* products → catálogo de productos
-* categories → clasificación
-* quotes → solicitudes de cotización
-* admins → usuarios administrativos
+## Qué funciona y qué es simulado
 
----
+| Parte | Estado |
+| --- | --- |
+| Landing, formulario, panel, edición del borrador, aprobación, cambios de estado y vista de propuesta | Funcionan en el navegador. Se pueden repetir con el ejemplo y persisten por `localStorage`. |
+| Imprimir o guardar PDF | Usa el diálogo de impresión del navegador. No hay generación de PDF en servidor. |
+| Solicitud, aprobación, propuesta y seguimiento de la demo | Simulados localmente; no son registros de producción ni se comunican con el backend. |
+| Backend original | Implementa API de catálogo, recepción de solicitudes y cambio básico de estado con PostgreSQL; requiere configuración propia. Esta rama no añade esos flujos al panel comercial. |
+| Correo, mensajería, pagos, integraciones activas | No conectados en la demo. |
 
-## 🔌 API Endpoints
-### Públicos
-* GET /api/products
-* GET /api/products/:slug
-* GET /api/categories
-* POST /api/quotes
+Para un piloto de producción faltan al menos: autenticación y permisos, persistencia compartida, historial de cambios y aprobaciones, reglas comerciales y de impuestos, plantilla documental revisada, envío por un canal autorizado, gestión de errores, actualización y auditoría de dependencias, y seguridad operacional. No se presentan resultados medidos ni promesas de ahorro porcentual.
 
-### Administrador
-* POST /api/admin/login
-* CRUD productos
-* CRUD categorías
-* Gestión de cotizaciones
-* Upload de archivos
+Las páginas comerciales antiguas están guardadas en `frontend/legacy-pages/`. No forman parte de las rutas ni del build de esta demo porque contenían afirmaciones y datos de un proveedor no definido. El código cliente API original sigue en `frontend/src/lib/api.ts`; su configuración opcional histórica está en `frontend/.env.example`. Para usar el sistema original con PostgreSQL y Rust, cambia a `main` y consulta su README.
 
----
+## Guion de grabación (60–90 segundos, sin mostrar la cara)
 
-## 🎯 Caso de Uso
+1. **0–10 s — Landing.** Muestra titular y flujo. Locución: «Una solicitud de cotización entra y todo el proceso queda visible en un solo lugar».
+2. **10–22 s — Solicitud.** Pulsa **Ver el recorrido**, enseña los datos marcados como ejemplo y **Registrar solicitud**. «El pedido llega con empresa, producto, cantidad y observaciones ordenadas».
+3. **22–35 s — Panel.** Señala el estado **Solicitud recibida** y pulsa **Preparar borrador**. «El equipo recibe un borrador con importe referencial».
+4. **35–52 s — Revisión.** Cambia el precio o las condiciones y pulsa **Aprobar borrador**. «Una persona revisa y aprueba antes de preparar la propuesta».
+5. **52–70 s — Propuesta.** Pulsa **Generar propuesta** y **Ver propuesta**. Muestra el documento y la opción **Imprimir o guardar PDF**. «La propuesta queda lista para revisar y compartir por el canal que la empresa decida».
+6. **70–85 s — Seguimiento.** Vuelve al panel y pulsa **Marcar en seguimiento**. «El panel muestra el estado actual y conserva el contexto del pedido».
 
-Este proyecto está diseñado para:
-* Empresas distribuidoras
-* Proveedores industriales o médicos
-* Negocios B2B sin e-commerce directo
-
-No incluye pagos ni carrito de compras.
-El enfoque es la generación de leads mediante cotizaciones.
-
----
-
-## ⚠️ Disclaimer
-Este repositorio es una versión de portafolio basada en un proyecto real.
-
-* Todos los datos sensibles han sido eliminados
-* Las credenciales son de ejemplo
-* No contiene información de ninguna empresa real
-
----
-
-## 📄 Licencia
-
-Uso educativo y de portafolio.
+Mantén visible la etiqueta **Demo local** y evita describir el documento como enviado al cliente.

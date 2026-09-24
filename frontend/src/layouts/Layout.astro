@@ -1,114 +1,70 @@
 ---
-interface Props {
-  title: string;
-  description?: string;
-  ogImage?: string;
-}
-
-const { title, description = 'Proveedor profesional de equipos médicos para instituciones de salud. Catalogo B2B con fichas tecnicas y registro sanitario DIGEMID.', ogImage } = Astro.props;
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
+import { brand } from '../lib/demo';
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://[Nombre de Empresa].com');
+interface Props { title: string; description?: string; }
+const { title, description = 'Una demostración de cómo organizar solicitudes, revisar cotizaciones y seguir propuestas en un solo lugar.' } = Astro.props;
 ---
-
 <!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="generator" content={Astro.generator} />
-
-    <!-- SEO -->
-    <title>{title}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content={brand.primaryDark} />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title} · {brand.name}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonicalURL.href} />
-
-    <!-- Open Graph -->
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content={canonicalURL.href} />
-    {ogImage && <meta property="og:image" content={ogImage} />}
-    <meta property="og:locale" content="es_PE" />
-    <meta property="og:site_name" content="[Nombre de Empresa]" />
-
-    <!-- Tipografia profesional -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   </head>
-  <body>
-    <a href="#main-content" class="skip-link">Ir al contenido principal</a>
+  <body style={`--primary:${brand.primary};--primary-dark:${brand.primaryDark};--accent:${brand.accent}`}>
+    <a class="skip-link" href="#main-content">Ir al contenido</a>
     <Navbar />
-    <main id="main-content">
-      <slot />
-    </main>
+    <main id="main-content"><slot /></main>
     <Footer />
   </body>
 </html>
 
 <style is:global>
-  :root {
-    --azul-institucional: #1e40af;
-    --azul-hover: #1e3a8a;
-    --azul-light: #dbeafe;
-    --gris-pizarra: #475569;
-    --gris-texto: #1f2937;
-    --gris-secundario: #6b7280;
-    --gris-borde: #e5e7eb;
-    --gris-fondo: #f8fafc;
-    --blanco: #ffffff;
-    --rojo-error: #dc2626;
-    --verde-exito: #16a34a;
-    --max-width: 1200px;
-  }
-
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-
-  body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    line-height: 1.6;
-    color: var(--gris-texto);
-    background: var(--gris-fondo);
-    -webkit-font-smoothing: antialiased;
-  }
-
-  main {
-    min-height: calc(100vh - 200px);
-  }
-
-  /* Skip link para accesibilidad */
-  .skip-link {
-    position: absolute;
-    top: -100%;
-    left: 0;
-    background: var(--azul-institucional);
-    color: white;
-    padding: 0.5rem 1rem;
-    z-index: 100;
-    font-size: 0.875rem;
-  }
-
-  .skip-link:focus {
-    top: 0;
-  }
-
-  /* Focus visible para navegacion por teclado */
-  :focus-visible {
-    outline: 2px solid var(--azul-institucional);
-    outline-offset: 2px;
-  }
-
-  /* Contenedor reutilizable */
-  .container {
-    max-width: var(--max-width);
-    margin: 0 auto;
-    padding: 0 1.5rem;
-  }
+  :root { color-scheme: light; --ink:#172738; --muted:#536374; --line:#dce3ea; --paper:#f5f8fb; --white:#fff; --mint:#e3f5f1; --amber:#fff2dc; --shadow:0 18px 48px rgba(18,42,73,.09); }
+  *,*::before,*::after { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { margin:0; background:var(--paper); color:var(--ink); font-family:'DM Sans',system-ui,sans-serif; line-height:1.55; }
+  h1,h2,h3,p { margin-top:0; }
+  h1,h2,h3 { font-family:Manrope,'DM Sans',sans-serif; line-height:1.16; letter-spacing:-.035em; }
+  h1 { font-size:clamp(2.35rem,5.5vw,4.8rem); }
+  h2 { font-size:clamp(1.6rem,3vw,2.5rem); }
+  a { color:inherit; }
+  button,input,select,textarea { font:inherit; }
+  button { cursor:pointer; }
+  :focus-visible { outline:3px solid var(--accent); outline-offset:3px; }
+  .container { width:min(1160px,calc(100% - 40px)); margin-inline:auto; }
+  .skip-link { position:absolute; left:16px; top:-80px; background:#fff; padding:10px 14px; z-index:100; }
+  .skip-link:focus { top:12px; }
+  .eyebrow { font-size:.72rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:var(--primary); }
+  .button { display:inline-flex; align-items:center; justify-content:center; gap:.55rem; min-height:46px; border:1px solid transparent; border-radius:10px; padding:.72rem 1.15rem; font-weight:700; text-decoration:none; line-height:1.2; transition:transform .15s,background .15s,box-shadow .15s; }
+  .button:hover { transform:translateY(-1px); }
+  .button:disabled { opacity:.55; cursor:not-allowed; transform:none; }
+  .button-primary { color:#fff; background:var(--primary); }
+  .button-primary:hover { background:var(--primary-dark); box-shadow:0 8px 20px rgba(24,54,87,.18); }
+  .button-secondary { background:#fff; border-color:var(--line); color:var(--primary-dark); }
+  .button-secondary:hover { background:#edf3f8; }
+  .panel { background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); }
+  .demo-notice { display:inline-flex; align-items:center; gap:.5rem; border-radius:999px; padding:.4rem .75rem; background:#e8f2f8; color:#294e6b; font-size:.78rem; font-weight:700; }
+  .demo-notice::before { content:''; width:7px; height:7px; border-radius:50%; background:var(--accent); }
+  .field { display:grid; gap:.4rem; font-weight:700; font-size:.87rem; }
+  .field input,.field textarea { width:100%; border:1px solid #bdcbd7; background:#fff; color:var(--ink); border-radius:9px; padding:.75rem .85rem; font-weight:400; }
+  .field textarea { min-height:92px; resize:vertical; }
+  .field input:focus,.field textarea:focus { border-color:var(--primary); }
+  .field small { color:var(--muted); font-weight:400; }
+  .status { display:inline-flex; align-items:center; gap:.45rem; border-radius:99px; background:#e8effb; color:#274b80; padding:.32rem .65rem; font-size:.77rem; font-weight:800; white-space:nowrap; }
+  .status::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; }
+  .status.borrador { background:var(--amber); color:#915616; }
+  .status.aprobada,.status.propuesta,.status.seguimiento { background:var(--mint); color:#0a6c64; }
+  .error-box { border:1px solid #ebb9b3; background:#fff4f2; border-radius:10px; color:#96392e; padding:.8rem 1rem; }
+  .muted { color:var(--muted); }
+  @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { animation-duration:.01ms!important; transition-duration:.01ms!important; } }
+  @media (max-width:640px) { .container { width:min(100% - 28px,1160px); } }
 </style>

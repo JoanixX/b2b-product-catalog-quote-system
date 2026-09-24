@@ -1,0 +1,75 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Propuesta de ejemplo" description="Vista imprimible de una propuesta ficticia aprobada en la demo.">
+  <div class="container proposal-page">
+    <div class="toolbar"><a href="/demo" class="back">← Volver al panel</a><div class="toolbar-actions"><span class="demo-notice">Documento de ejemplo · no enviado</span><button id="print-button" type="button" class="button button-primary" hidden>Imprimir o guardar PDF</button></div></div>
+    <div id="proposal-content" class="panel proposal-sheet" aria-live="polite"><p class="loading">Cargando propuesta…</p></div>
+  </div>
+</Layout>
+
+<script>
+  import { brand, demoContent, escapeHtml, formatDate, formatMoney, readQuotes } from '../lib/demo';
+  const content = document.querySelector<HTMLElement>('#proposal-content')!;
+  const printButton = document.querySelector<HTMLButtonElement>('#print-button')!;
+  const id = new URLSearchParams(location.search).get('id');
+  try {
+    const quote = readQuotes().find(q => q.id === id);
+    if (!quote) {
+      content.innerHTML = '<div class="proposal-empty"><h1>Propuesta no encontrada</h1><p>La propuesta no está guardada en este navegador. Abre el panel y selecciona un expediente.</p><a class="button button-primary" href="/demo">Ir al panel</a></div>';
+    } else if (quote.stage !== 'propuesta' && quote.stage !== 'seguimiento') {
+      content.innerHTML = `<div class="proposal-empty"><h1>La propuesta aún no está generada</h1><p>Revisa y aprueba el borrador del expediente ${escapeHtml(quote.id)} antes de abrir este documento.</p><a class="button button-primary" href="/demo?id=${encodeURIComponent(quote.id)}">Revisar expediente</a></div>`;
+    } else {
+      content.innerHTML = `<div class="proposal-top"><div class="proposal-brand"><span class="brand-icon">↗</span><div><strong>${escapeHtml(brand.name)}</strong><small>PROPUESTA COMERCIAL · EJEMPLO</small></div></div><span class="proposal-id">${escapeHtml(quote.id)}</span></div>
+        <div class="proposal-title"><span>DOCUMENTO FICTICIO · SIN VALIDEZ COMERCIAL</span><h1>Propuesta para ${escapeHtml(quote.company)}</h1><p>Preparada ${formatDate(quote.updatedAt)} · Contacto: ${escapeHtml(quote.contact)}</p></div>
+        <div class="proposal-section"><span class="section-label">01 / Resumen del pedido</span><p>${escapeHtml(quote.request || 'Sin observaciones adicionales.')}</p></div>
+        <div class="proposal-section"><span class="section-label">02 / Detalle económico</span><div class="table-wrap"><table><thead><tr><th>Concepto</th><th>Cantidad</th><th>Precio unitario</th><th>Subtotal</th></tr></thead><tbody><tr><td>${escapeHtml(quote.product)}</td><td>${quote.quantity}</td><td>${formatMoney(quote.unitPrice)}</td><td>${formatMoney(quote.quantity * quote.unitPrice)}</td></tr></tbody></table></div><div class="proposal-total"><span>Total referencial de ejemplo</span><strong>${formatMoney(quote.quantity * quote.unitPrice)}</strong></div><p class="tax-note">${escapeHtml(demoContent.taxNote)}</p></div>
+        <div class="proposal-section"><span class="section-label">03 / Condiciones por confirmar</span><p>${escapeHtml(quote.terms)}</p></div>
+        <div class="proposal-footer"><strong>Revisión humana registrada en la demo</strong><p>Este documento se genera solo en este navegador. No se ha enviado al cliente ni tiene aprobación contractual.</p></div>`;
+      printButton.hidden = false;
+    }
+  } catch (error) {
+    content.innerHTML = '<div class="proposal-empty"><h1>No se pudo cargar la propuesta</h1><p>Revisa el almacenamiento de este navegador o restablece la demo desde el panel.</p><a class="button button-primary" href="/demo">Ir al panel</a></div>';
+  }
+  printButton.addEventListener('click', () => window.print());
+</script>
+
+<style>
+  .proposal-page { max-width:980px; padding-block:35px 10px; }
+  .toolbar { display:flex; justify-content:space-between; align-items:center; gap:20px; margin-bottom:20px; }
+  .back { color:var(--primary); text-decoration:none; font-size:.85rem; font-weight:800; }
+  .toolbar-actions { display:flex; align-items:center; gap:12px; }
+  .proposal-sheet { padding:48px 58px; min-height:630px; box-shadow:none; }
+  :global(.proposal-top) { display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:28px; }
+  :global(.proposal-brand) { display:flex; align-items:center; gap:11px; }
+  :global(.brand-icon) { display:grid; place-items:center; width:38px; height:38px; background:var(--primary); color:#fff; border-radius:9px; font-size:1.45rem; }
+  :global(.proposal-brand strong) { display:block; font:800 1.2rem Manrope,sans-serif; color:var(--primary-dark); }
+  :global(.proposal-brand small) { display:block; color:var(--muted); font-size:.59rem; font-weight:800; letter-spacing:.12em; }
+  :global(.proposal-id) { color:var(--primary); font-weight:800; font-size:.85rem; }
+  :global(.proposal-title) { padding:38px 0 32px; }
+  :global(.proposal-title>span) { color:var(--accent); font-size:.7rem; font-weight:800; letter-spacing:.14em; }
+  :global(.proposal-title h1) { font-size:clamp(1.7rem,4vw,2.65rem); max-width:690px; margin:9px 0 10px; }
+  :global(.proposal-title p) { color:var(--muted); font-size:.84rem; margin:0; }
+  :global(.proposal-section) { padding:22px 0; border-top:1px solid var(--line); }
+  :global(.section-label) { display:block; color:var(--primary); font-size:.69rem; font-weight:800; letter-spacing:.11em; text-transform:uppercase; margin-bottom:12px; }
+  :global(.proposal-section>p) { font-size:.89rem; color:#3f5263; margin-bottom:0; }
+  :global(.table-wrap) { overflow-x:auto; }
+  :global(table) { border-collapse:collapse; width:100%; min-width:540px; font-size:.8rem; }
+  :global(th) { background:#f2f6f8; color:var(--muted); text-align:left; text-transform:uppercase; font-size:.63rem; letter-spacing:.07em; padding:12px; }
+  :global(td) { padding:15px 12px; border-bottom:1px solid var(--line); }
+  :global(th:last-child),:global(td:last-child) { text-align:right; }
+  :global(.proposal-total) { display:flex; justify-content:flex-end; align-items:center; gap:35px; padding:18px 0 6px; color:var(--primary-dark); }
+  :global(.proposal-total span) { font-size:.8rem; font-weight:800; }
+  :global(.proposal-total strong) { font:800 1.5rem Manrope,sans-serif; }
+  :global(.tax-note) { text-align:right; color:var(--muted)!important; font-size:.71rem!important; }
+  :global(.proposal-footer) { background:#eff5f7; border-radius:10px; padding:20px; margin-top:18px; font-size:.77rem; }
+  :global(.proposal-footer strong) { color:var(--accent); }
+  :global(.proposal-footer p) { color:var(--muted); margin:5px 0 0; }
+  :global(.proposal-empty) { max-width:510px; margin:70px auto; text-align:center; }
+  :global(.proposal-empty h1) { font-size:1.8rem; }
+  :global(.proposal-empty p) { color:var(--muted); }
+  :global(.loading) { color:var(--muted); }
+  [hidden] { display:none!important; }
+  @media(max-width:700px) { .toolbar { align-items:start; flex-direction:column; } .toolbar-actions { width:100%; justify-content:space-between; flex-wrap:wrap; } .proposal-sheet { padding:25px 20px; } }
+  @media print { :global(.site-header),:global(.footer),.toolbar { display:none!important; } :global(body) { background:#fff!important; } .proposal-page { width:100%; max-width:none; padding:0; } .proposal-sheet { border:0; padding:0; } }
+</style>
