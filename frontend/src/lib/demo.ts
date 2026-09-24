@@ -6,7 +6,7 @@ export const brand = {
   primary: '#284c85',
   primaryDark: '#193657',
   accent: '#087b72',
-  salesContactUrl: '', // URL de contacto propia. Si está vacía, se muestra una instrucción.
+  salesContactUrl: 'mailto:alvaradocjosorio@gmail.com?subject=Demo%20de%20cotizaciones%20B2B',
 };
 
 export const demoContent = {

@@ -4,7 +4,7 @@ import { brand } from '../lib/demo';
 <footer class="footer">
   <div class="container footer-inner">
     <div><strong>{brand.name}</strong><p>{brand.descriptor}. Demostración comercial con empresas, productos e importes ficticios.</p></div>
-    <div><a href="/demo">Recorrido</a><a href="/#contacto">Adaptar la demo</a></div>
+    <div><a href="/demo">Recorrido</a><a href={brand.salesContactUrl}>Contactar a Joaquín Alvarado</a></div>
   </div>
 </footer>
 <style>
@@ -12,7 +12,7 @@ import { brand } from '../lib/demo';
   .footer-inner { display:flex; justify-content:space-between; align-items:start; gap:25px; }
   strong { font:800 1.1rem Manrope,sans-serif; }
   p { margin:.3rem 0 0; color:#cbd9e6; font-size:.83rem; }
-  .footer-inner>div:last-child { display:flex; gap:18px; font-size:.83rem; }
+  .footer-inner>div:last-child { display:flex; gap:18px; flex-wrap:wrap; font-size:.83rem; }
   a { color:#fff; }
   @media(max-width:640px) { .footer-inner { flex-direction:column; } }
 </style>
