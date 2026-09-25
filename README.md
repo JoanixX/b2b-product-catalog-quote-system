@@ -100,3 +100,17 @@ Render Free se evaluó para el staging: 512 MB RAM, 0,1 CPU, suspensión tras 15
 Límites: un solo negocio por despliegue, sin multiempresa ni permisos granulares, sin recuperación de contraseña por correo, sin envío real y sin facturación electrónica. El backend es una base funcional para un piloto; no una certificación de producción.
 
 Estado del staging y variables privadas: [verificación de entrega](docs/VERIFICATION.md). La cuenta propietaria de GitHub es JoanixX; Cloudflare pertenece a alvaradocjosorio@gmail.com; Render está en «Joaquin's workspace» y Neon en la organización de Joaquín. El entorno local pertenece al equipo del usuario y no es una URL pública.
+
+### Estado comprobado del staging
+
+El acceso de https://trazo-piloto.onrender.com/pilot está desplegado por HTTPS. La API rechaza peticiones sin token. Quedan pendientes la contraseña personal del primer operador y la comprobación autenticada online; el flujo completo ya pasó pruebas de integración locales con PostgreSQL. No se deben introducir datos reales.
+
+| Servicio | Finalidad | Cuenta propietaria | Rama | Plan y estado |
+| --- | --- | --- | --- | --- |
+| Cloudflare Pages | Demo pública | alvaradocjosorio@gmail.com | feat/commercial-demo | Free; sitio y despliegue automático comprobados |
+| GitHub | Código fuente | JoanixX | feat/commercial-demo | Repositorio público; commits asociados a JoanixX |
+| Render | Backend de staging | Joaquin's workspace | feat/commercial-demo | Free; HTTPS y rechazo sin token comprobados; alta personal pendiente |
+| Neon | Base del staging | Joaquín | production (rama de base, no Git) | Free; PostgreSQL 15 creado y backend iniciado con migraciones |
+| Docker local | Desarrollo y pruebas | Equipo del usuario | Checkout comercial | Sin hosting contratado; pruebas del flujo completo aprobadas |
+
+Secretos del staging: únicamente `DATABASE_URL` y `JWT_SECRET`, guardados en Render → trazo-piloto → Environment. Las variables temporales de bootstrap deben retirarse tras el alta del operador. Coste incurrido: S/0.

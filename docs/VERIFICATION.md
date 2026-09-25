@@ -38,7 +38,7 @@ Comprobación HTTP local tras desactivar el catálogo público: `/health` 200, `
 - Neon: proyecto `trazo-piloto`, PostgreSQL 15, plan Free y rama sin vencimiento verificados en panel. Solo PostgreSQL habilitado; sin Auth, Functions, almacenamiento de objetos ni pasarela de IA.
 - Render: servicio `trazo-piloto`, plan Free, raíz `backend`, rama `feat/commercial-demo`, build `cargo build --release --locked`, runtime Rust 1.96.0. La cuenta no tenía tarjeta. [Panel](https://dashboard.render.com/web/srv-dardl77avr4c73e8hvhg/deploys).
 - `DATABASE_URL` y `JWT_SECRET` están guardados en **Render → trazo-piloto → Environment**. No están en Git ni en la demo. El secreto JWT inicial fue reemplazado antes de activar el servicio.
-- URL asignada: https://trazo-piloto.onrender.com/pilot. **Asignar una URL no demuestra un flujo funcionando**. La compilación, el bootstrap personal y la verificación autenticada online deben constar como terminados antes de presentar este entorno como disponible.
+- Staging desplegado y visitado en navegador: https://trazo-piloto.onrender.com/pilot muestra el acceso controlado. Comprobación HTTP remota: `/health` 200, `/pilot` 200, `/api/pilot/quotes` 401, `/api/admin/products` 401 y `/api/products` 404. Como el servidor ejecuta migraciones antes de escuchar, el arranque confirma que superó esa fase. Falta el bootstrap personal y el recorrido autenticado online; no se presenta como piloto operativo para clientes.
 - Preparado el alta inicial por `BOOTSTRAP_ADMIN_EMAIL` y `BOOTSTRAP_ADMIN_PASSWORD`; la contraseña debe introducirse personalmente en el panel privado. Después del alta hay que retirar ambas variables y devolver Start Command al binario directo.
 
 ## Identidad, alcance y costes
