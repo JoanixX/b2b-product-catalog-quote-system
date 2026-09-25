@@ -1,145 +1,50 @@
-# API B2B - Backend
+# Backend: piloto controlado
 
-API Backend para la plataforma de catalogo medico B2B, construida con Rust y Axum.
+Rust 1.96, Axum y PostgreSQL 15. La demo de Astro no llama a esta API.
 
-## Stack Tecnologico
+Desde la raíz, con Docker Desktop Linux:
 
-- **Framework**: Axum 0.7
-- **Base de Datos**: PostgreSQL con SQLx (Neon.tech)
-- **Autenticacion**: JWT con Argon2id
-- **Almacenamiento de Archivos**: Cloudflare R2 / AWS S3
-- **Email**: API Resend (plantillas HTML)
-- **Validacion**: crate `validator` + RUC peruano (Modulo 11)
-- **Sanitizacion**: crate `ammonia` (prevencion XSS)
-- **Deployment**: Render.com
-
-## Caracteristicas
-
-- API RESTful con endpoints publicos y administrativos
-- Autenticacion JWT con Argon2id (resistente a GPU y side-channel attacks)
-- Catalogo de productos con campos regulatorios (registro sanitario, ficha tecnica, marca, garantia)
-- Sistema de cotizaciones con validacion de RUC peruano (algoritmo Modulo 11)
-- Sanitizacion XSS automatica en todos los inputs de texto
-- Carga de archivos con validacion MIME estricta (solo JPEG, WebP, PDF)
-- Nombres UUID generados en servidor para archivos subidos
-- Sistema de errores opacos con codigos estandarizados
-- Notificaciones por email con plantillas HTML profesionales
-- CORS estricto sin AllowAll
-- Logging estructurado con tracing
-
-## Arquitectura
-
-```
-backend/src/
-├── main.rs              # Punto de entrada, servidor y router
-├── config.rs            # Carga de variables de entorno
-├── db.rs                # Pool de conexiones a PostgreSQL
-├── error.rs             # Errores opacos con codigos estandarizados
-├── models/              # Structs de datos y DTOs
-│   ├── product.rs       # Producto con campos regulatorios
-│   ├── category.rs      # Categorias
-│   ├── quote.rs         # Cotizaciones con RUC obligatorio
-│   └── admin.rs         # Administradores
-├── routes/              # Handlers de endpoints
-│   ├── public.rs        # Endpoints publicos (catalogo, cotizaciones)
-│   └── admin.rs         # Endpoints de administracion (CRUD)
-├── services/            # Logica de negocio
-│   ├── auth.rs          # Argon2id + JWT (expiracion 2h)
-│   ├── email.rs         # Notificaciones HTML via Resend
-│   ├── s3.rs            # Archivos a S3 con validacion MIME
-│   └── validation.rs    # RUC peruano (Modulo 11) + sanitizacion XSS
-└── middleware/           # Middleware de autenticacion
-    └── auth.rs          # Verificacion de JWT
+```powershell
+./scripts/Start-Pilot.ps1 -Test
+./scripts/Start-Pilot.ps1 -Bootstrap
+./scripts/Start-Pilot.ps1
 ```
 
-## Comenzando
+Interfaz: http://localhost:3005/pilot. El bootstrap pide credenciales privadas y rechaza crear otra cuenta cuando ya existe un operador. No hay usuario/contraseña por defecto. No publiques el archivo `.pilot-private/local.env`.
 
-### Prerequisitos
+## Ejecución sin Docker
 
-- Rust 1.70+
-- Cuenta en Neon.tech (PostgreSQL gratuito en la nube)
-- Cuenta en Cloudflare R2 o AWS S3 (almacenamiento)
-- Cuenta en Resend (emails gratuitos, 3000/mes)
+Configurar privadamente `DATABASE_URL`, `JWT_SECRET` (aleatorio, mínimo 32 caracteres), `PORT` y `CORS_ORIGIN`. Los valores de `.env.example` son ficticios y no deben usarse como secretos.
 
-### Instalacion
-
-1. Clonar el repositorio
-2. Copiar `.env.example` a `.env` y configurar:
-
-   ```bash
-   cp .env.example .env
-   ```
-
-3. Obtener connection string de Neon.tech y pegarlo en `DATABASE_URL`
-4. Iniciar el servidor (las migraciones se ejecutan automaticamente):
-
-   ```bash
-   cargo run
-   ```
-
-La API estara disponible en `http://localhost:3000`
-
-> No es necesario instalar PostgreSQL localmente.
-
-### Generar secretos para produccion
-
-```bash
-python scripts/generate_secrets.py
+```sh
+cargo test --locked
+cargo run --locked -- bootstrap-admin
+cargo run --locked
+cargo build --release --locked
 ```
 
-Esto genera claves seguras con CSPRNG para JWT, base de datos y admin.
+Para bootstrap, proporcionar temporalmente `BOOTSTRAP_ADMIN_EMAIL` y `BOOTSTRAP_ADMIN_PASSWORD` (mínimo 16 caracteres). Retirar ambas después. El usuario de PostgreSQL para tests necesita permiso para crear bases aisladas; nunca ejecutar los tests contra una base de cliente. Las migraciones se ejecutan antes de abrir el servidor y están incluidas en el binario.
 
-## Endpoints de API
+## Desplegar
 
-### Endpoints Publicos
+Imagen reproducible:
 
-- `GET /health` - Verificacion de salud
-- `GET /api/products` - Listar productos (paginacion, busqueda, filtros)
-- `GET /api/products/:slug` - Obtener producto por slug
-- `GET /api/categories` - Listar todas las categorias
-- `POST /api/quotes` - Enviar solicitud de cotizacion (requiere RUC peruano valido)
+```sh
+docker build -t trazo-pilot ./backend
+```
 
-### Endpoints Administrativos (requieren JWT)
+El Dockerfile compila release con lockfile y ejecuta como usuario sin privilegios. Inyectar `DATABASE_URL` y `JWT_SECRET` desde el gestor privado del proveedor; no incluirlos en la imagen. Puerto por `PORT`; ruta de salud `/health`; interfaz `/pilot`. La comprobación `/health` indica proceso activo, no sustituye probar escritura/lectura real en PostgreSQL.
 
-- `POST /api/admin/login` - Login de administrador
-- `GET /api/admin/products` - Listar todos los productos (vista admin)
-- `POST /api/admin/products` - Crear producto
-- `PUT /api/admin/products/:id` - Actualizar producto
-- `DELETE /api/admin/products/:id` - Eliminar producto
-- `PATCH /api/admin/products/:id/toggle` - Alternar estado activo del producto
-- `GET /api/admin/categories` - Listar categorias
-- `POST /api/admin/categories` - Crear categoria
-- `PUT /api/admin/categories/:id` - Actualizar categoria
-- `DELETE /api/admin/categories/:id` - Eliminar categoria
-- `GET /api/admin/quotes` - Listar cotizaciones
-- `GET /api/admin/quotes/:id` - Obtener detalles de cotizacion
-- `PATCH /api/admin/quotes/:id/status` - Actualizar estado de cotizacion
-- `POST /api/admin/upload` - Subir archivo (JPEG, WebP o PDF, max 10MB)
+Render nativo: rama `feat/commercial-demo`, raíz `backend`, `RUST_VERSION=1.96.0`, build `cargo build --release --locked`, inicio `./target/release/b2b_product_catalog_quote_system_api`. Seleccionar expresamente Free: el formulario inicialmente selecciona un plan de pago. No añadir tarjeta. No mantener contraseñas de bootstrap una vez creado el operador. Si no hay shell, hacer el bootstrap desde un equipo autorizado o mediante un comando de inicio temporal y retirarlo después.
 
-## Codigos de Error
+Base remota: PostgreSQL con TLS, URL privada del proveedor y un proyecto exclusivo para datos sintéticos. El staging no debe depender de una base que caduque a corto plazo ni presentarse como producción.
 
-El API devuelve errores opacos con codigos estandarizados:
+## Alcance y seguridad
 
-| Codigo                | Descripcion                                     |
-| --------------------- | ----------------------------------------------- |
-| `ERR_INTERNAL_SERVER` | Error interno (detalles logueados internamente) |
-| `ERR_UNAUTHORIZED`    | Credenciales invalidas o token expirado         |
-| `ERR_VALIDATION`      | Error de validacion en los datos enviados       |
-| `ERR_NOT_FOUND`       | Recurso no encontrado                           |
-| `ERR_BAD_REQUEST`     | Solicitud malformada                            |
-| `ERR_RATE_LIMIT`      | Demasiadas solicitudes                          |
-| `ERR_INVALID_RUC`     | RUC peruano invalido                            |
+`/api/pilot/*` y administración requieren JWT con operador existente. El login es `/api/admin/login`, limitado a 20 intentos por minuto por proceso (límite global de la instancia, no protección distribuida). Los tokens duran dos horas; al cerrar sesión se borra el token de memoria del navegador. No se guarda en localStorage.
 
-## Variables de Entorno
+La API pública heredada solo se activa con `ENABLE_LEGACY_PUBLIC_API=true`. Los uploads requieren compilar con `legacy-uploads` y no están habilitados en este piloto. Las reglas médicas del catálogo original no se aplican al flujo genérico. No se configuró correo ni mensajería; la respuesta de guardado declara que la notificación está desactivada.
 
-Ver `.env.example` para todas las variables de entorno requeridas.
+La migración adicional elimina únicamente el administrador histórico con su hash original conocido, antes de servir. Una cuenta modificada deliberadamente no se borra. En una instalación existente, auditar además las cuentas y rotar credenciales conocidas; no reescribir migraciones aplicadas.
 
-Archivos de entorno disponibles:
-
-- `.env` - Desarrollo local (no se sube al repo)
-- `.env.production` - Produccion (no se sube al repo)
-- `.env.example` - Plantilla de referencia (se sube al repo)
-
-## Deployment
-
-Configurado para deployment en Render.com. La configuracion se realiza desde el dashboard de Render (variables de entorno manuales, sin render.yaml).
+Antes de un cliente real: cuentas propias, backups y ensayo de restauración, roles acordados, retención, protección perimetral/rate limiting distribuido, revisión de dependencias y soporte. SQLx 0.7.4 compila y pasa pruebas con Rust 1.96, pero emite aviso de incompatibilidad futura; planificar su actualización antes de cambiar toolchain.

@@ -1,3 +1,7 @@
+# API heredada y piloto controlado
+
+La API pública del catálogo médico está desactivada por defecto. El piloto genérico se documenta en [PILOT-API.md](PILOT-API.md). No existe una cuenta administrativa por defecto. Los dominios de producción de esta referencia son ficticios.
+
 # Documentacion de API - [Nombre de Empresa]
 
 ## URL Base
@@ -199,7 +203,7 @@ POST /api/admin/login
 ```json
 {
   "email": "admin@[Nombre de Empresa].com",
-  "password": "admin123"
+  "password": "<contraseña privada del operador>"
 }
 ```
 

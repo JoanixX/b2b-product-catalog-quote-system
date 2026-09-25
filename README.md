@@ -1,59 +1,102 @@
-# Trazo — demo comercial de cotizaciones B2B
+# Trazo — demo comercial y base de piloto B2B
 
-Esta rama (`feat/commercial-demo`) es una demostración local y ficticia de un proceso de cotización: **solicitud → datos organizados → borrador → revisión y aprobación humana → propuesta → seguimiento**. La rama `main` conserva el proyecto original. El backend Rust original permanece en `backend/` sin modificaciones.
+**Demo pública:** https://trazo-cotizaciones.pages.dev/
 
-Todas las empresas, personas, productos e importes mostrados en la demo son **ejemplos ficticios**. La interfaz comercial no envía correos, mensajes ni datos a servicios externos. Su estado se guarda únicamente en el `localStorage` del navegador.
+Responsable: **Joaquín Alvarado** · [Portafolio](https://joanixx.github.io/) · [GitHub](https://github.com/JoanixX) · [Contacto comercial](mailto:alvaradocjosorio@gmail.com).
 
-## Ejecutar la demo
+## Dos entornos separados
 
-Requisitos: Node.js 18 o superior y npm. Desde la raíz de este repositorio:
+| Entorno | Arquitectura y alcance |
+| --- | --- |
+| Demo pública | Astro estático en Cloudflare Pages. Datos ficticios en `localStorage`; no usa API, base de datos ni correo. Funciona aunque el piloto esté detenido. |
+| Piloto controlado | Rust/Axum + PostgreSQL; interfaz `/pilot`, acceso JWT, solicitudes compartidas, borrador editable, aprobación humana, propuesta congelada e historial. Solo datos sintéticos. |
+| Cliente real | Todavía no existe. Requiere cuentas propias, requisitos acordados, tratamiento de datos, costes, respaldo y soporte. |
+
+La simulación pública no almacena leads. El contacto real es el enlace de correo: abre el cliente de correo del visitante, no envía automáticamente. No hay clientes, resultados comerciales, WhatsApp, pagos ni correos enviados que se atribuyan a esta demo.
+
+## Demo: ejecutar y publicar
+
+Node.js **22.12 o superior** (versión fijada en `frontend/.node-version`) y npm:
 
 ```powershell
 cd frontend
 npm ci
-npm run dev
-```
-
-Abrir `http://localhost:4321`. No hace falta configurar `.env` ni iniciar PostgreSQL o Rust para la demo. Para verificar el paquete estático:
-
-```powershell
+npm test
 npm run build
 npm run preview
 ```
 
-La demo local se inicia vacía. En la landing, **Ver el recorrido** abre el formulario con datos ficticios precargados. Desde el panel también puedes pulsar **Cargar ejemplo**. **Restablecer ejemplo** sustituye los datos guardados en ese navegador por una solicitud inicial.
+Para desarrollar: `npm run dev`. La salida estática es `frontend/dist`. No requiere `.env`.
 
-## Personalizar marca y contenido
+Cloudflare Pages usa integración Git con `JoanixX/b2b-product-catalog-quote-system`, rama de producción `feat/commercial-demo`, raíz `frontend`, build `npm run build`, salida `dist`. Los pushes a esa rama disparan despliegues automáticamente. No se modificó `main` ni la autoría histórica.
 
-Edita `frontend/src/lib/demo.ts`:
+[Panel de Cloudflare](https://dash.cloudflare.com/205644fa506ec0bae6a6dcaa58c405d2/pages/view/trazo-cotizaciones). Sin dominio comprado ni secretos del backend en el frontend.
 
-- `brand.name`, `descriptor`, `primary`, `primaryDark`, `accent` y `logoUrl` controlan la marca. Coloca el logo en `frontend/public/` y usa una ruta como `/logo-agencia.svg`.
-- `brand.salesContactUrl` habilita el enlace real de la llamada a la acción. Déjalo vacío hasta configurar un canal autorizado; la página avisará que el contacto está pendiente.
-- `demoContent` contiene empresa, contacto, producto, importe, condiciones y observaciones de ejemplo. Mantenlos ficticios y señalados como ejemplo.
+## Preparar una reunión o grabación
 
-La simulación mantiene un único tipo de producto por solicitud y calcula el importe como cantidad × precio unitario, sin impuestos ni flete. Los datos creados durante el recorrido se guardan en el navegador donde se hizo la demostración. No se incluyen credenciales de demo.
+1. Abre `/demo`, pulsa **Restablecer ejemplo** y acepta reemplazar únicamente los datos ficticios de ese navegador.
+2. Comprueba que aparece `EJ-001` en **Solicitud recibida**.
+3. Para grabar desde la landing, usa una sesión nueva y pulsa **Ver el recorrido**. Una sesión nueva empieza vacía.
+4. Recorre solicitud → panel → preparar borrador → guardar cambios → aprobar → generar propuesta → ver propuesta → imprimir → volver al panel → seguimiento.
 
-## Qué funciona y qué es simulado
+La propuesta no se comparte entre navegadores; compartir su URL no transmite sus datos. Para mostrar a otra persona, comparte la landing. `Imprimir o guardar PDF` abre el diálogo del navegador; la selección del destino y guardado se hacen allí.
 
-| Parte | Estado |
-| --- | --- |
-| Landing, formulario, panel, edición del borrador, aprobación, cambios de estado y vista de propuesta | Funcionan en el navegador. Se pueden repetir con el ejemplo y persisten por `localStorage`. |
-| Imprimir o guardar PDF | Usa el diálogo de impresión del navegador. No hay generación de PDF en servidor. |
-| Solicitud, aprobación, propuesta y seguimiento de la demo | Simulados localmente; no son registros de producción ni se comunican con el backend. |
-| Backend original | Implementa API de catálogo, recepción de solicitudes y cambio básico de estado con PostgreSQL; requiere configuración propia. Esta rama no añade esos flujos al panel comercial. |
-| Correo, mensajería, pagos, integraciones activas | No conectados en la demo. |
+[Guion exacto de 60–90 segundos](docs/RECORDING.md) · [Verificación y límites](docs/VERIFICATION.md).
 
-Para un piloto de producción faltan al menos: autenticación y permisos, persistencia compartida, historial de cambios y aprobaciones, reglas comerciales y de impuestos, plantilla documental revisada, envío por un canal autorizado, gestión de errores, actualización y auditoría de dependencias, y seguridad operacional. No se presentan resultados medidos ni promesas de ahorro porcentual.
+## Piloto local reproducible
 
-Las páginas comerciales antiguas están guardadas en `frontend/legacy-pages/`. No forman parte de las rutas ni del build de esta demo porque contenían afirmaciones y datos de un proveedor no definido. El código cliente API original sigue en `frontend/src/lib/api.ts`; su configuración opcional histórica está en `frontend/.env.example`. Para usar el sistema original con PostgreSQL y Rust, cambia a `main` y consulta su README.
+Requisitos: Docker Desktop con contenedores Linux y PowerShell. Desde la raíz:
 
-## Guion de grabación (60–90 segundos, sin mostrar la cara)
+```powershell
+./scripts/Start-Pilot.ps1 -Test
+./scripts/Start-Pilot.ps1 -Bootstrap
+./scripts/Start-Pilot.ps1
+```
 
-1. **0–10 s — Landing.** Muestra titular y flujo. Locución: «Una solicitud de cotización entra y todo el proceso queda visible en un solo lugar».
-2. **10–22 s — Solicitud.** Pulsa **Ver el recorrido**, enseña los datos marcados como ejemplo y **Registrar solicitud**. «El pedido llega con empresa, producto, cantidad y observaciones ordenadas».
-3. **22–35 s — Panel.** Señala el estado **Solicitud recibida** y pulsa **Preparar borrador**. «El equipo recibe un borrador con importe referencial».
-4. **35–52 s — Revisión.** Cambia el precio o las condiciones y pulsa **Aprobar borrador**. «Una persona revisa y aprueba antes de preparar la propuesta».
-5. **52–70 s — Propuesta.** Pulsa **Generar propuesta** y **Ver propuesta**. Muestra el documento y la opción **Imprimir o guardar PDF**. «La propuesta queda lista para revisar y compartir por el canal que la empresa decida».
-6. **70–85 s — Seguimiento.** Vuelve al panel y pulsa **Marcar en seguimiento**. «El panel muestra el estado actual y conserva el contexto del pedido».
+El bootstrap solicita el correo y una contraseña única de al menos 16 caracteres, sin mostrarla. Solo permite crear el primer operador si no existe ninguno. Abre **http://localhost:3005/pilot** e inicia sesión. La primera compilación tarda varios minutos.
 
-Mantén visible la etiqueta **Demo local** y evita describir el documento como enviado al cliente.
+El script genera `POSTGRES_PASSWORD` y `JWT_SECRET` aleatorios en `.pilot-private/local.env` (ignorado por Git). PostgreSQL no publica un puerto al host; la API está enlazada solo a `127.0.0.1`. El volumen `pilot-data` conserva los datos. No uses `docker compose down -v` si deseas conservarlos.
+
+Para detener sin borrar datos:
+
+```powershell
+docker compose --env-file .pilot-private/local.env -f compose.pilot.yml stop
+```
+
+La ruta funcional es: **guardar solicitud compartida → preparar borrador → configurar precio, impuesto y condiciones → guardar → confirmar revisión humana → aprobar → generar propuesta revisable → registrar seguimiento**. El piloto genérico no exige RUC ni registro sanitario. Admite una línea por solicitud, PEN/USD y un impuesto configurable; todos los valores deben validarse por una persona.
+
+## Seguridad y comportamiento real
+
+- Todas las rutas `/api/admin` salvo login, y todas las `/api/pilot`, requieren JWT y un operador existente. El login tiene límite de intentos por proceso.
+- Filtros SQL parametrizados, paginación acotada, cuerpo máximo 64 KiB y límites de valores.
+- Una nueva migración retira la cuenta histórica con hash conocido antes de servir peticiones; la migración original no se reescribe.
+- Solicitudes del piloto idempotentes por UUID; repetir el mismo pedido no duplica, reutilizarlo con otro contenido devuelve 409.
+- Edición y transiciones usan transacción, bloqueo y versión; una edición obsoleta o transición inválida devuelve 409. La propuesta conserva una instantánea de los valores aprobados.
+- Guardar no depende del correo: se informa `saved: true` y `notification_status: disabled`. No se envían mensajes.
+- La API pública del catálogo médico heredado está desactivada por defecto. Solo se habilita explícitamente con `ENABLE_LEGACY_PUBLIC_API=true`; no forma parte del piloto genérico.
+- Los uploads heredados están desactivados sin la feature `legacy-uploads`. No se configuró AWS.
+
+[Configuración del backend](backend/README.md) · [Contrato de API](docs/API.md).
+
+## Servicios y costes
+
+Cloudflare Pages Free: 500 builds/mes, una compilación simultánea y hasta 20.000 archivos por sitio, según [límites oficiales](https://developers.cloudflare.com/pages/platform/limits/) consultados el 25-09-2026. La demo entra en estos límites.
+
+Se creó en la cuenta de Joaquín el proyecto Neon **trazo-piloto**, PostgreSQL 15, plan Free, 0,5 GB de almacenamiento, suspensión al quedar inactivo y rama sin fecha de caducidad en el panel. [Panel de Neon](https://console.neon.tech/app/projects/proud-resonance-02823206/branches/br-rough-recipe-b57qv94j). Esto no constituye almacenamiento de producción con SLA o estrategia de respaldo.
+
+Render Free se evaluó para el staging: 512 MB RAM, 0,1 CPU, suspensión tras 15 minutos y 750 horas/mes compartidas por workspace; sin shell ni jobs puntuales. El panel de la cuenta no tenía tarjeta. PostgreSQL gratuito de Render se descartó porque expira a los 30 días. Consulta [límites oficiales](https://render.com/docs/free). El estado comprobado del staging está en `docs/VERIFICATION.md`; no lo confundas con la demo pública.
+
+**Gasto efectuado en este trabajo: S/0.** No se añadió tarjeta, dominio ni plan pagado.
+
+## Convertir un trato en piloto
+
+1. Acordar un único proceso, productos, moneda, impuestos, aprobador y criterio de aceptación con el comprador.
+2. Definir datos permitidos, consentimiento/base aplicable, retención, respaldo, recuperación, presupuesto y responsable de soporte.
+3. Crear cuentas y despliegue del cliente separados de la demo. Guardar `DATABASE_URL` y `JWT_SECRET` solo en variables privadas; TLS obligatorio para la base remota.
+4. Ejecutar migraciones, dar de alta el primer operador por bootstrap y retirar las variables temporales `BOOTSTRAP_ADMIN_EMAIL` y `BOOTSTRAP_ADMIN_PASSWORD`.
+5. Probar con datos sintéticos el flujo, reintentos, aprobación, recuperación y acceso no autorizado. Validar el documento con el comprador.
+6. Incorporar correo u otra integración solo si se acuerda, inicialmente en sandbox. Registrar quién paga cada cuenta. Activar datos reales únicamente tras aceptación del piloto.
+
+Límites: un solo negocio por despliegue, sin multiempresa ni permisos granulares, sin recuperación de contraseña por correo, sin envío real y sin facturación electrónica. El backend es una base funcional para un piloto; no una certificación de producción.
+
+Estado del staging y variables privadas: [verificación de entrega](docs/VERIFICATION.md). La cuenta propietaria de GitHub es JoanixX; Cloudflare pertenece a alvaradocjosorio@gmail.com; Render está en «Joaquin's workspace» y Neon en la organización de Joaquín. El entorno local pertenece al equipo del usuario y no es una URL pública.
