@@ -39,7 +39,7 @@ import Layout from '../layouts/Layout.astro';
   }
   function actionMarkup(quote: DemoQuote): string {
     if (quote.stage === 'recibida') return `<div class="next-action"><div><strong>Siguiente paso: preparar borrador</strong><p>El importe inicial usa el precio referencial de esta demo. Una persona podrá modificarlo antes de aprobar.</p></div><button class="button button-primary" data-action="draft">Preparar borrador →</button></div>`;
-    if (quote.stage === 'borrador') return `<div class="review-box"><div class="review-heading"><div><span class="eyebrow">Revisión humana</span><h3>Ajusta antes de aprobar</h3></div><span class="status borrador">Borrador</span></div><div class="review-fields"><label class="field">Cantidad<input id="review-quantity" type="number" min="1" max="10000" step="1" value="${quote.quantity}" /></label><label class="field">Precio unitario de ejemplo (S/)<input id="review-price" type="number" min="0" max="10000000" step="1" value="${quote.unitPrice}" /></label></div><label class="field">Condiciones de ejemplo<textarea id="review-terms" maxlength="500">${escapeHtml(quote.terms)}</textarea></label><p class="review-hint">Verifica el pedido y el importe. La aprobación se registra en esta demo local.</p><div class="review-actions"><button class="button button-secondary" data-action="save">Guardar cambios</button><button class="button button-primary" data-action="approve">Aprobar borrador →</button></div></div>`;
+    if (quote.stage === 'borrador') return `<div class="review-box"><div class="review-heading"><div><span class="eyebrow">Revisión humana</span><h3>Ajusta antes de aprobar</h3></div><span class="status borrador">Borrador</span></div><div class="review-fields"><label class="field">Cantidad<input id="review-quantity" type="number" min="1" max="10000" step="1" value="${quote.quantity}" /></label><label class="field">Precio unitario de ejemplo (S/)<input id="review-price" type="number" min="0" max="10000000" step="0.01" value="${quote.unitPrice}" /></label></div><label class="field">Condiciones de ejemplo<textarea id="review-terms" maxlength="500">${escapeHtml(quote.terms)}</textarea></label><p class="review-hint">Verifica el pedido y el importe. La aprobación se registra en esta demo local.</p><div class="review-actions"><button class="button button-secondary" data-action="save">Guardar cambios</button><button class="button button-primary" data-action="approve">Aprobar borrador →</button></div></div>`;
     if (quote.stage === 'aprobada') return `<div class="next-action"><div><strong>Borrador aprobado</strong><p>La revisión humana está registrada. Genera la vista de propuesta para imprimirla o guardarla como PDF.</p></div><button class="button button-primary" data-action="proposal">Generar propuesta →</button></div>`;
     if (quote.stage === 'propuesta') return `<div class="next-action"><div><strong>Propuesta generada</strong><p>La propuesta se puede revisar en una página imprimible. El seguimiento se actualiza desde aquí.</p></div><div class="action-stack"><a class="button button-primary" href="/propuesta?id=${encodeURIComponent(quote.id)}">Ver propuesta ↗</a><button class="button button-secondary" data-action="followup">Marcar en seguimiento</button></div></div>`;
     return `<div class="next-action"><div><strong>Seguimiento en curso</strong><p>El expediente conserva el pedido, la aprobación y la propuesta de ejemplo.</p></div><a class="button button-primary" href="/propuesta?id=${encodeURIComponent(quote.id)}">Ver propuesta ↗</a></div>`;
@@ -75,6 +75,7 @@ import Layout from '../layouts/Layout.astro';
   detail.addEventListener('click', (event) => {
     const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-action]');
     if (!button) return;
+    const snapshot = structuredClone(quotes);
     try {
       const action = button.dataset.action;
       if (action === 'load') { quotes = resetQuotes(); currentId = quotes[0].id; persist(); return; }
@@ -86,7 +87,7 @@ import Layout from '../layouts/Layout.astro';
       else if (action === 'followup' && q.stage === 'propuesta') q.stage = 'seguimiento';
       else return;
       q.updatedAt = new Date().toISOString(); persist();
-    } catch (error) { showError(error instanceof Error ? error.message : 'No se pudo actualizar el expediente.'); }
+    } catch (error) { quotes = snapshot; render(); showError(error instanceof Error ? error.message : 'No se pudo actualizar el expediente.'); }
   });
   document.querySelector('#reset-demo')?.addEventListener('click', () => {
     if (!confirm('Se reemplazarán las solicitudes guardadas en este navegador por el ejemplo inicial. ¿Continuar?')) return;

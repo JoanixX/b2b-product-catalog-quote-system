@@ -74,10 +74,11 @@ export function readQuotes(): DemoQuote[] {
       typeof item.id === 'string' && typeof item.company === 'string' &&
       typeof item.contact === 'string' && typeof item.product === 'string' &&
       typeof item.request === 'string' && typeof item.terms === 'string' &&
-      typeof item.createdAt === 'string' && typeof item.updatedAt === 'string' &&
-      typeof item.quantity === 'number' && Number.isSafeInteger(item.quantity) && item.quantity > 0 &&
-      typeof item.unitPrice === 'number' && Number.isFinite(item.unitPrice) && item.unitPrice >= 0 &&
-      typeof item.stage === 'string' && item.stage in stageLabels
+      typeof item.createdAt === 'string' && Number.isFinite(Date.parse(item.createdAt)) &&
+      typeof item.updatedAt === 'string' && Number.isFinite(Date.parse(item.updatedAt)) &&
+      typeof item.quantity === 'number' && Number.isSafeInteger(item.quantity) && item.quantity > 0 && item.quantity <= 10000 &&
+      typeof item.unitPrice === 'number' && Number.isFinite(item.unitPrice) && item.unitPrice >= 0 && item.unitPrice <= 10000000 &&
+      typeof item.stage === 'string' && Object.prototype.hasOwnProperty.call(stageLabels, item.stage)
     )) throw new Error('Formato inválido');
     return parsed;
   } catch {
@@ -100,7 +101,7 @@ export function resetQuotes(): DemoQuote[] {
 }
 
 export function formatMoney(amount: number): string {
-  return new Intl.NumberFormat('es-PE', { style: 'currency', currency: demoContent.currency, maximumFractionDigits: 0 }).format(amount);
+  return new Intl.NumberFormat('es-PE', { style: 'currency', currency: demoContent.currency, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
 }
 
 export function formatDate(value: string): string {
