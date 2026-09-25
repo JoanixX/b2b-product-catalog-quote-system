@@ -14,6 +14,7 @@ pub struct Config {
     pub email_from: String,
     pub email_to: String,
     pub cors_origin: Vec<String>,
+    pub legacy_public_api: bool,
 }
 
 impl Config {
@@ -32,6 +33,7 @@ impl Config {
                 .parse()
                 .map_err(|_| "PORT must be a valid number".to_string())?,
             jwt_secret,
+            legacy_public_api: env::var("ENABLE_LEGACY_PUBLIC_API").as_deref() == Ok("true"),
             aws_access_key_id: env::var("AWS_ACCESS_KEY_ID").unwrap_or_default(),
             aws_secret_access_key: env::var("AWS_SECRET_ACCESS_KEY").unwrap_or_default(),
             aws_region: env::var("AWS_REGION").unwrap_or_else(|_| "us-east-1".to_string()),

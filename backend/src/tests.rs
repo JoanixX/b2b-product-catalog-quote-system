@@ -47,6 +47,7 @@ async fn security_and_pilot_vertical(pool: PgPool) {
         email_from: String::new(),
         email_to: String::new(),
         cors_origin: vec![],
+        legacy_public_api: true,
     };
     let state = AppState {
         db: pool.clone(),

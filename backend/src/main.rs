@@ -139,9 +139,14 @@ async fn main() -> anyhow::Result<()> {
 }
 
 pub fn app(app_state: AppState) -> Router {
+    let public_routes = if app_state.config.legacy_public_api {
+        routes::public::routes()
+    } else {
+        Router::new()
+    };
     Router::new()
         .route("/health", get(health_check))
-        .nest("/api", routes::public::routes())
+        .nest("/api", public_routes)
         .nest("/api/admin", routes::admin::routes(app_state.clone()))
         .nest("/api/pilot", pilot::routes(app_state.clone()))
         .route(
