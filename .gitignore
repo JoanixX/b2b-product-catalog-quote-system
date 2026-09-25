@@ -3,7 +3,6 @@ backend/target/
 backend/.env
 backend/.env.production
 backend/.env.local
-backend/Cargo.lock
 
 # Frontend (Node)
 frontend/node_modules/
@@ -46,3 +45,5 @@ Thumbs.db
 # Permitir archivos example
 !.env.example
 !**/.env.example
+# Private local pilot configuration
+.pilot-private/

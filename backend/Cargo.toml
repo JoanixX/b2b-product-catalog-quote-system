@@ -3,11 +3,15 @@ name = "b2b_product_catalog_quote_system_api"
 version = "0.2.0"
 edition = "2021"
 
+[features]
+default = []
+legacy-uploads = ["dep:aws-sdk-s3", "dep:aws-config"]
+
 [dependencies]
 # web framework
 axum = { version = "0.7", features = ["multipart"] }
 tokio = { version = "1", features = ["full"] }
-tower = "0.4"
+tower = { version = "0.5", features = ["util"] }
 tower-http = { version = "0.5", features = ["cors", "trace", "limit"] }
 
 # rate limiting
@@ -26,8 +30,8 @@ jsonwebtoken = "9"
 argon2 = "0.5"
 
 # aws s3
-aws-sdk-s3 = "1"
-aws-config = "1"
+aws-sdk-s3 = { version = "1", optional = true }
+aws-config = { version = "1", optional = true }
 
 # utilidades
 uuid = { version = "1", features = ["v4", "serde"] }

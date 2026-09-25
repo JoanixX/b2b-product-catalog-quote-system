@@ -9,7 +9,7 @@ use validator::Validate;
 use crate::{
     error::{ApiError, ApiResult},
     models::*,
-    services::validation::{validate_ruc, sanitize_text},
+    services::validation::{sanitize_text, validate_ruc},
     AppState,
 };
 
@@ -33,45 +33,17 @@ async fn get_products(
     State(state): State<AppState>,
     Query(params): Query<ProductQuery>,
 ) -> ApiResult<Json<ProductListResponse>> {
-    let page = params.page.unwrap_or(1).max(1);
-    let limit = params.limit.unwrap_or(20).min(100);
+    let page = params.page.unwrap_or(1).clamp(1, 1_000_000);
+    let limit = params.limit.unwrap_or(20).clamp(1, 100);
     let offset = (page - 1) * limit;
-    
-    let mut query = String::from(
-        "SELECT * FROM products WHERE is_active = true"
-    );
-    
-    // filtro por categoria
-    if let Some(category_slug) = &params.category {
-        let clean = sanitize_text(category_slug);
-        query.push_str(&format!(
-            " AND category_id = (SELECT id FROM categories WHERE slug = '{}')",
-            clean
-        ));
-    }
-    
-    // filtro por busqueda
-    if let Some(search) = &params.search {
-        let clean = sanitize_text(search);
-        query.push_str(&format!(
-            " AND (name ILIKE '%{}%' OR description ILIKE '%{}%')",
-            clean, clean
-        ));
-    }
-    
-    query.push_str(" ORDER BY created_at DESC");
-    query.push_str(&format!(" LIMIT {} OFFSET {}", limit, offset));
-    
-    let products: Vec<Product> = sqlx::query_as(&query)
-        .fetch_all(&state.db)
-        .await?;
-    
-    // obtener total de resultados
-    let count_query = "SELECT COUNT(*) as count FROM products WHERE is_active = true";
-    let total: (i64,) = sqlx::query_as(count_query)
-        .fetch_one(&state.db)
-        .await?;
-    
+    let search = params.search.as_ref().map(|s| format!("%{}%", s));
+    let products: Vec<Product> = sqlx::query_as(
+        "SELECT * FROM products WHERE is_active = true AND ($1::text IS NULL OR category_id = (SELECT id FROM categories WHERE slug = $1)) AND ($2::text IS NULL OR name ILIKE $2 OR description ILIKE $2) ORDER BY created_at DESC LIMIT $3 OFFSET $4"
+    ).bind(&params.category).bind(&search).bind(limit).bind(offset).fetch_all(&state.db).await?;
+    let total: (i64,) = sqlx::query_as(
+        "SELECT COUNT(*) FROM products WHERE is_active = true AND ($1::text IS NULL OR category_id = (SELECT id FROM categories WHERE slug = $1)) AND ($2::text IS NULL OR name ILIKE $2 OR description ILIKE $2)"
+    ).bind(&params.category).bind(&search).fetch_one(&state.db).await?;
+
     Ok(Json(ProductListResponse {
         products,
         total: total.0,
@@ -84,26 +56,21 @@ async fn get_product_by_slug(
     State(state): State<AppState>,
     Path(slug): Path<String>,
 ) -> ApiResult<Json<Product>> {
-    let product = sqlx::query_as::<_, Product>(
-        "SELECT * FROM products WHERE slug = $1 AND is_active = true"
-    )
-    .bind(&slug)
-    .fetch_optional(&state.db)
-    .await?
-    .ok_or_else(|| ApiError::NotFound("Producto no encontrado".to_string()))?;
-    
+    let product =
+        sqlx::query_as::<_, Product>("SELECT * FROM products WHERE slug = $1 AND is_active = true")
+            .bind(&slug)
+            .fetch_optional(&state.db)
+            .await?
+            .ok_or_else(|| ApiError::NotFound("Producto no encontrado".to_string()))?;
+
     Ok(Json(product))
 }
 
-async fn get_categories(
-    State(state): State<AppState>,
-) -> ApiResult<Json<Vec<Category>>> {
-    let categories = sqlx::query_as::<_, Category>(
-        "SELECT * FROM categories ORDER BY name ASC"
-    )
-    .fetch_all(&state.db)
-    .await?;
-    
+async fn get_categories(State(state): State<AppState>) -> ApiResult<Json<Vec<Category>>> {
+    let categories = sqlx::query_as::<_, Category>("SELECT * FROM categories ORDER BY name ASC")
+        .fetch_all(&state.db)
+        .await?;
+
     Ok(Json(categories))
 }
 
@@ -112,22 +79,23 @@ async fn create_quote(
     Json(payload): Json<CreateQuoteRequest>,
 ) -> ApiResult<Json<serde_json::Value>> {
     // validar estructura basica
-    payload.validate()
+    payload
+        .validate()
         .map_err(|e| ApiError::Validation(e.to_string()))?;
-    
+
     // validar ruc peruano con algoritmo modulo 11
     if !validate_ruc(&payload.company_tax_id) {
         return Err(ApiError::InvalidRuc);
     }
-    
+
     // Sanitizar campos de texto
     let company_name = sanitize_text(&payload.company_name);
     let contact_name = sanitize_text(&payload.contact_name);
     let message = payload.message.as_deref().map(sanitize_text);
     let estimated_quantity = payload.estimated_quantity.as_deref().map(sanitize_text);
-    
+
     // Insertar cotizacion en base de datos
-    let _quote = sqlx::query_as::<_, Quote>(
+    let quote = sqlx::query_as::<_, Quote>(
         r#"
         INSERT INTO quotes (
             company_name, company_tax_id, contact_name, email, phone,
@@ -135,7 +103,7 @@ async fn create_quote(
         )
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'pending')
         RETURNING *
-        "#
+        "#,
     )
     .bind(&company_name)
     .bind(&payload.company_tax_id)
@@ -147,33 +115,12 @@ async fn create_quote(
     .bind(&message)
     .fetch_one(&state.db)
     .await?;
-    
-    // obtener nombres de productos para email
-    let product_names: Vec<String> = sqlx::query_as::<_, (String,)>(
-        "SELECT name FROM products WHERE id = ANY($1)"
-    )
-    .bind(&payload.product_ids)
-    .fetch_all(&state.db)
-    .await?
-    .into_iter()
-    .map(|(name,)| name)
-    .collect();
-    
-    let products_text = product_names.join(", ");
-    
-    // enviar notificacion por email
-    state.email.send_quote_notification(
-        &company_name,
-        &contact_name,
-        &payload.email,
-        payload.phone.as_deref(),
-        &payload.company_tax_id,
-        &products_text,
-        message.as_deref(),
-    ).await?;
-    
+
+    // The database is authoritative. Notifications are explicitly disabled in the pilot.
+    // Never return an insertion failure after a successful save because email failed.
     Ok(Json(serde_json::json!({
-        "code": "OK",
-        "message": "Solicitud de cotizacion enviada exitosamente"
+        "code": "OK", "id": quote.id, "saved": true,
+        "notification_status": "disabled",
+        "message": "Solicitud guardada. No se ha enviado correo."
     })))
 }

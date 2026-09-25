@@ -6,31 +6,34 @@ use axum::{
 use serde_json::json;
 use thiserror::Error;
 
-// codigos de error estandarizados, o sea nunca se exponen 
+// codigos de error estandarizados, o sea nunca se exponen
 // detalles internos al cliente
 #[derive(Error, Debug)]
 pub enum ApiError {
     #[error("Error de base de datos")]
     Database(#[from] sqlx::Error),
-    
+
     #[error("Error de autenticacion")]
     Auth(String),
-    
+
     #[error("Error de validacion")]
     Validation(String),
-    
+
     #[error("Recurso no encontrado")]
     NotFound(String),
-    
+
     #[error("Error interno del servidor")]
     Internal(String),
-    
+
     #[error("Solicitud invalida")]
     BadRequest(String),
-    
+
     #[error("No autorizado")]
     Unauthorized,
-    
+
+    #[error("Conflicto de estado")]
+    Conflict(String),
+
     #[error("Lmite de solicitudes excedido")]
     RateLimitExceeded,
 
@@ -58,18 +61,18 @@ impl IntoResponse for ApiError {
                 tracing::warn!(
                     error_type = "auth",
                     details = %msg,
-                    "Intento de autenticación fallido"
+                    "Intento de autenticaciÃ³n fallido"
                 );
                 (
                     StatusCode::UNAUTHORIZED,
                     "ERR_UNAUTHORIZED",
-                    "Credenciales inválidas".to_string(),
+                    "Credenciales invÃ¡lidas".to_string(),
                 )
             }
             ApiError::Validation(ref msg) => (
                 StatusCode::BAD_REQUEST,
                 "ERR_VALIDATION",
-                format!("Error de validación: {}", msg),
+                format!("Error de validaciÃ³n: {}", msg),
             ),
             ApiError::NotFound(_) => (
                 StatusCode::NOT_FOUND,
@@ -88,11 +91,10 @@ impl IntoResponse for ApiError {
                     "Error interno del servidor".to_string(),
                 )
             }
-            ApiError::BadRequest(ref msg) => (
-                StatusCode::BAD_REQUEST,
-                "ERR_BAD_REQUEST",
-                msg.clone(),
-            ),
+            ApiError::BadRequest(ref msg) => {
+                (StatusCode::BAD_REQUEST, "ERR_BAD_REQUEST", msg.clone())
+            }
+            ApiError::Conflict(msg) => (StatusCode::CONFLICT, "ERR_CONFLICT", msg),
             ApiError::Unauthorized => (
                 StatusCode::UNAUTHORIZED,
                 "ERR_UNAUTHORIZED",
