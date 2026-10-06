@@ -1,0 +1,152 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { stages } from '../lib/interviews';
+---
+<Layout title="Entrevistas comerciales" description="Guía de descubrimiento comercial de 30 minutos. Procesos, problemas y propuestas por cliente.">
+  <div class="container interview-workspace">
+    <header class="interview-heading">
+      <div><p class="eyebrow">Descubrimiento comercial / 30 minutos</p><h1>Primero, entender.</h1><p class="muted">Una conversación por cliente. Una necesidad real antes de una propuesta.</p></div>
+      <button id="new-interview" class="button button-primary" type="button">Nueva entrevista ＋</button>
+    </header>
+    <div id="interview-error" class="error-box" role="alert" hidden></div>
+    <p id="announcement" class="sr-only" aria-live="polite"></p>
+    <details class="library panel" id="library">
+      <summary><span>Mis entrevistas <span id="interview-count">0</span></span><span class="muted">Retomar o respaldar ↓</span></summary>
+      <div class="library-body"><div id="interview-list"></div><div class="backup-actions"><button type="button" class="text-button" id="backup-all">Descargar respaldo de todas</button><label class="text-button import-label">Importar respaldo<input type="file" id="import-backup" accept=".json,application/json" /></label><p class="muted">Las notas se guardan en este navegador. El respaldo permite trasladarlas a otro equipo.</p></div></div>
+    </details>
+    <section id="empty-interviews" class="panel empty-interviews">
+      <div class="empty-symbol" aria-hidden="true">↳</div><h2>Escucha. Anota. Prioriza.</h2><p>Abre una entrevista para registrar dos procesos, tres problemas y un siguiente paso. Tú llevas la conversación; la guía te acompaña.</p>
+      <button type="button" class="button button-primary" id="start-interview">Preparar mi primera entrevista →</button>
+      <p class="local-note">Uso del entrevistador · sin datos personales de pacientes ni historias clínicas.</p>
+    </section>
+    <div id="interview-editor" hidden>
+      <div class="session-bar"><div><strong id="client-title"></strong><span id="save-state" role="status"></span></div><div class="session-tools"><span id="timer" aria-label="Tiempo de conversación">00:00 / 30:00</span><button type="button" class="text-button" id="toggle-timer">Iniciar reloj</button><button type="button" class="text-button" id="view-summary">Ver resumen</button></div></div>
+      <div class="interview-grid">
+        <aside class="guide-sidebar"><nav aria-label="Etapas de la entrevista" class="agenda">
+          {stages.map((stage, index) => <button type="button" data-step={index}><span class="stage-number">{index + 1}</span><span>{stage.title}<small>{stage.minutes ? `${stage.minutes} min` : 'Después de la reunión'}</small></span></button>)}
+        </nav><div class="interviewer-tip"><strong>Escucha antes de proponer.</strong><p>Pide el último caso real. Profundiza en dos procesos. Guarda las ideas de solución para después.</p><details><summary>Si la conversación se desvía</summary><p>“Entiendo, y de todos estos procesos, ¿cuál tiene mayor impacto?”</p></details></div></aside>
+        <section class="panel interview-sheet" aria-labelledby="step-title">
+          <div class="sheet-heading"><span class="eyebrow" id="step-counter"></span><h2 id="step-title" tabindex="-1"></h2><p id="step-description" class="muted"></p><div class="progress-track" aria-hidden="true"><div id="stage-progress"></div></div></div>
+          <div id="step-content"></div>
+          <footer class="step-controls"><button id="previous-step" type="button" class="button button-secondary">← Anterior</button><span id="step-note" class="muted">Puedes dejar pendientes y volver después.</span><button id="next-step" type="button" class="button button-primary">Siguiente →</button></footer>
+        </section>
+      </div>
+      <p class="local-note">Guardado en este navegador · descarga un respaldo al terminar · registra solo información de operación del negocio.</p>
+    </div>
+    <section id="summary-panel" class="panel summary-panel" hidden aria-labelledby="summary-title">
+      <div class="summary-heading"><div><p class="eyebrow">Lo que sabemos hasta ahora</p><h2 id="summary-title" tabindex="-1">Resumen de la entrevista</h2></div><button id="close-summary" class="button button-secondary" type="button">Volver a las notas</button></div>
+      <div class="summary-actions"><button id="download-notes" type="button" class="button button-primary">Descargar notas</button><button id="download-interview" type="button" class="button button-secondary">Respaldar entrevista</button><button id="print-summary" type="button" class="button button-secondary">Imprimir / guardar PDF</button></div>
+      <div id="summary-content"></div>
+    </section>
+    <noscript><p class="error-box">Activa JavaScript para tomar notas y guardarlas en este navegador.</p></noscript>
+  </div>
+  <dialog id="new-dialog" aria-labelledby="new-title"><form id="new-form"><h2 id="new-title">Una nueva conversación</h2><p class="muted">Empieza con el negocio. Los demás datos pueden completarse durante la reunión.</p><label class="field">Nombre del cliente o negocio<input id="new-client" required maxlength="200" autocomplete="organization" /></label><label class="field">Sector<input id="new-sector" value="Policlínico" maxlength="200" /></label><div class="dialog-actions"><button type="button" id="cancel-new" class="button button-secondary">Cancelar</button><button type="submit" class="button button-primary">Crear entrevista →</button></div></form></dialog>
+</Layout>
+
+<script>
+  import '../lib/interview-ui';
+</script>
+
+<style is:global>
+  .interview-workspace { padding-block:38px 16px; }
+  .interview-heading { display:flex; align-items:center; justify-content:space-between; gap:24px; margin-bottom:24px; }
+  .interview-heading h1 { font-size:clamp(2rem,4vw,3rem); margin:8px 0; }
+  .interview-heading p { margin-bottom:0; }
+  .interview-heading .eyebrow { margin-bottom:8px; }
+  .interview-workspace [hidden] { display:none!important; }
+  .interview-workspace .error-box { margin-bottom:16px; }
+  .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+  .library { margin-bottom:22px; box-shadow:none; border-radius:12px; }
+  .library>summary { display:flex; justify-content:space-between; gap:16px; cursor:pointer; padding:16px 20px; font-size:.87rem; font-weight:700; list-style:none; }
+  #interview-count { margin-left:8px; background:#edf3f8; color:var(--primary); padding:2px 8px; border-radius:6px; }
+  .library-body { border-top:1px solid var(--line); padding:8px 20px 16px; }
+  .interview-row { display:flex; align-items:center; justify-content:space-between; gap:16px; border-bottom:1px solid var(--line); padding:12px 0; }
+  .interview-row>button:first-child { border:0; background:none; text-align:left; color:var(--ink); padding:4px 0; flex:1; min-width:0; }
+  .interview-row strong { display:block; overflow-wrap:anywhere; }
+  .interview-row small { display:block; color:var(--muted); margin-top:3px; }
+  .text-button { border:0; background:none; padding:6px 0; color:var(--primary); font-weight:700; font-size:.82rem; text-decoration:underline; text-underline-offset:3px; }
+  .backup-actions { display:flex; gap:20px; align-items:center; flex-wrap:wrap; padding-top:12px; }
+  .backup-actions p { width:100%; margin:0; font-size:.78rem; }
+  .import-label { cursor:pointer; }
+  .import-label input { display:block; max-width:240px; font-size:.75rem; margin-top:4px; }
+  .empty-interviews { text-align:center; padding:60px 22px; }
+  .empty-interviews>p { max-width:520px; margin:0 auto 24px; color:var(--muted); }
+  .empty-symbol { color:var(--accent); font-size:3rem; line-height:1; margin-bottom:22px; }
+  .empty-interviews h2 { font-size:1.7rem; }
+  .local-note { text-align:center; font-size:.75rem; color:var(--muted); margin:20px 0 0!important; }
+  .session-bar { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:0 0 20px; }
+  .session-bar strong { font-size:.95rem; overflow-wrap:anywhere; }
+  #save-state { display:block; font-size:.72rem; color:var(--accent); }
+  .session-tools { display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+  #timer { font-variant-numeric:tabular-nums; font-size:.82rem; color:var(--muted); }
+  .interview-grid { display:grid; grid-template-columns:215px minmax(0,1fr); gap:26px; align-items:start; }
+  .interview-grid>* { min-width:0; }
+  .guide-sidebar { position:sticky; top:94px; }
+  .agenda { display:grid; gap:5px; }
+  .agenda button { display:flex; align-items:center; gap:13px; text-align:left; padding:12px; border:1px solid transparent; background:none; border-radius:10px; color:var(--muted); font-weight:700; font-size:.88rem; }
+  .agenda button small { display:block; font-size:.69rem; font-weight:400; margin-top:3px; }
+  .stage-number { width:27px; height:27px; display:grid; place-items:center; border:1px solid #bccbd7; border-radius:50%; flex-shrink:0; font-size:.75rem; }
+  .agenda button[aria-current=step] { background:#e7f2f0; color:#075e58; border-color:#bfded7; }
+  .agenda button[aria-current=step] .stage-number { color:#fff; background:var(--accent); border-color:var(--accent); }
+  .interviewer-tip { font-size:.77rem; color:var(--muted); margin:22px 12px; border-top:1px solid var(--line); padding-top:20px; }
+  .interviewer-tip strong { color:var(--ink); }
+  .interviewer-tip p { margin:8px 0 12px; }
+  .interviewer-tip summary { cursor:pointer; }
+  .interview-sheet { overflow:hidden; box-shadow:0 10px 32px rgba(18,42,73,.05); }
+  .sheet-heading { padding:28px 32px 0; }
+  .sheet-heading h2 { font-size:1.9rem; margin:10px 0; }
+  .sheet-heading p { font-size:.88rem; margin-bottom:22px; }
+  .progress-track { height:3px; background:#edf2f5; }
+  #stage-progress { height:100%; background:var(--accent); }
+  #step-content { padding:26px 32px; }
+  .prompt { border-left:3px solid var(--accent); background:#edf7f5; padding:17px 20px; border-radius:0 8px 8px 0; color:#164f4b; font-size:.92rem; margin:0 0 24px; }
+  .prompt p { margin:0; }
+  .fields { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .fields .wide { grid-column:1/-1; }
+  .interview-workspace .field { font-size:.82rem; }
+  .interview-workspace .field small { font-size:.73rem; }
+  .interview-workspace .field select { width:100%; border:1px solid #bdcbd7; border-radius:9px; background:white; color:var(--ink); padding:.75rem; font-weight:400; }
+  .interview-workspace textarea { min-height:94px; }
+  .question-help { margin-top:22px; font-size:.83rem; color:var(--muted); padding:14px 0 0; border-top:1px solid var(--line); }
+  .question-help summary { cursor:pointer; color:var(--primary); font-weight:700; }
+  .question-help ul { padding-left:20px; line-height:1.75; margin-bottom:0; }
+  .record-tabs { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+  .record-tabs button { border:1px solid var(--line); background:#fff; border-radius:8px; padding:8px 14px; color:var(--muted); font-size:.8rem; font-weight:700; }
+  .record-tabs button[aria-pressed=true] { background:var(--primary); color:#fff; border-color:var(--primary); }
+  .priority-block { margin-top:24px; padding-top:24px; border-top:1px solid var(--line); }
+  .priority-block h3 { font-size:1.05rem; }
+  .priority-block .field + .field { margin-top:16px; }
+  .step-controls { display:flex; justify-content:space-between; align-items:center; gap:15px; padding:20px 32px; border-top:1px solid var(--line); background:#fbfcfd; }
+  .step-controls>span { font-size:.7rem; max-width:170px; text-align:center; }
+  .checklist { list-style:none; padding:0; margin:18px 0; display:grid; gap:9px; font-size:.82rem; }
+  .checklist li { display:flex; gap:10px; color:var(--muted); }
+  .checklist .done { color:#075e58; }
+  .checklist .check-icon { width:20px; font-weight:800; }
+  .completion { border-top:1px solid var(--line); margin-top:24px; padding-top:20px; }
+  .completion h3 { font-size:1.1rem; }
+  .completion p { font-size:.8rem; color:var(--muted); }
+  .proposal-empty { color:var(--muted); font-size:.88rem; }
+  .proposal-actions { display:flex; align-items:center; gap:18px; margin-bottom:24px; }
+  .comparison { overflow-x:auto; margin-top:24px; }
+  .comparison table { border-collapse:collapse; width:100%; font-size:.78rem; }
+  .comparison th,.comparison td { border:1px solid var(--line); padding:12px; min-width:150px; vertical-align:top; text-align:left; white-space:pre-wrap; overflow-wrap:anywhere; }
+  .comparison th { background:#edf5f6; color:var(--primary-dark); }
+  .summary-panel { padding:32px; }
+  .summary-heading { display:flex; justify-content:space-between; align-items:center; gap:20px; }
+  .summary-heading h2 { font-size:1.8rem; }
+  .summary-actions { display:flex; flex-wrap:wrap; gap:10px; margin:16px 0 28px; }
+  .summary-section { padding:20px 0; border-top:1px solid var(--line); }
+  .summary-section h3 { font-size:1.15rem; margin-bottom:16px; }
+  .summary-section dl { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin:0; }
+  .summary-section dt { color:var(--muted); font-size:.74rem; margin-bottom:4px; }
+  .summary-section dd { margin:0; font-size:.87rem; white-space:pre-wrap; overflow-wrap:anywhere; }
+  #new-dialog { width:min(500px,calc(100% - 28px)); border:1px solid var(--line); border-radius:16px; padding:30px; color:var(--ink); box-shadow:var(--shadow); }
+  #new-dialog::backdrop { background:rgba(23,39,56,.45); }
+  #new-dialog h2 { font-size:1.55rem; }
+  #new-dialog p { font-size:.88rem; }
+  #new-dialog .field { margin-top:16px; }
+  .dialog-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:26px; }
+  @media(max-width:850px) { .interview-grid { grid-template-columns:1fr; gap:16px; } .guide-sidebar { position:static; } .agenda { display:flex; overflow-x:auto; padding-bottom:8px; } .agenda button { flex-shrink:0; padding:8px; } .agenda button small { display:none; } .interviewer-tip { display:none; } .session-bar { align-items:start; } }
+  @media(max-width:560px) { .interview-heading,.session-bar,.summary-heading { flex-direction:column; align-items:start; } .interview-heading h1 { font-size:2rem; } .sheet-heading { padding:22px 20px 0; } #step-content { padding:22px 20px; } .fields,.summary-section dl { grid-template-columns:1fr; } .fields .wide { grid-column:auto; } .step-controls { padding:16px; flex-wrap:wrap; } .step-controls>span { display:none; } .library>summary { font-size:.76rem; padding:14px; } .summary-panel { padding:20px; } .session-tools { gap:16px; } }
+  @media print { .site-header,body>footer,.interview-heading,.library,#interview-editor,#empty-interviews,.summary-heading button,.summary-actions,.local-note,.error-box { display:none!important; } #summary-panel { display:block!important; border:0; box-shadow:none; padding:0; } .container { width:100%; } .interview-workspace { padding:0; } body { background:white; font-size:10pt; } .summary-section { break-inside:avoid; } .summary-section dl { grid-template-columns:1fr 1fr; } .comparison th,.comparison td { min-width:0; } @page { margin:16mm; } }
+</style>

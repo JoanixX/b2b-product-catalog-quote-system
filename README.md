@@ -32,6 +32,20 @@ Cloudflare Pages usa integración Git con `JoanixX/b2b-product-catalog-quote-sys
 
 [Panel de Cloudflare](https://dash.cloudflare.com/205644fa506ec0bae6a6dcaa58c405d2/pages/view/trazo-cotizaciones). Sin dominio comprado ni secretos del backend en el frontend.
 
+## Entrevistas comerciales
+
+La ruta `/entrevistas` añade una guía para el entrevistador dentro de la plataforma existente. Reutiliza el hosting estático y no necesita un servicio ni una cuenta adicionales. Es la opción elegida para simplificar el mantenimiento a mediano y largo plazo. Google Forms sería más rápido para una encuesta convencional y [admite secciones condicionales](https://support.google.com/docs/answer/141062?hl=es), pero esta herramienta organiza fichas repetibles de procesos, problemas y propuestas durante una conversación.
+
+- Seis etapas de 30 minutos: inicio (2), negocio (4), procesos (8), problemas (7), viabilidad (6) y cierre (3). Reloj opcional con pausa; se reinicia al cambiar de entrevista o recargar.
+- Dos procesos, tres problemas, una prioridad y una lista verificable de información mínima. Los borradores admiten pendientes; marcar la reunión completada exige llenar esa lista.
+- Hasta tres propuestas por entrevista después de la reunión, relacionadas con problemas registrados y comparadas por beneficio, viabilidad, piloto, costos, tiempo y escalabilidad.
+- Varias entrevistas de distintos clientes o sectores (máximo 200). Guardado automático en `localStorage`, con una clave independiente de las cotizaciones de ejemplo.
+- Notas Markdown, resumen imprimible/PDF y respaldo JSON de una o todas las entrevistas. La importación valida el formato y añade copias con nuevos identificadores: conserva las entrevistas existentes.
+
+Las entrevistas **solo están en el navegador y origen donde se crean**. No se sincronizan entre equipos, no se envían al servidor y no son un formulario público para recibir respuestas de clientes. Borrar datos del navegador elimina las notas; descarga un respaldo al terminar. No uses varias pestañas para editar a la vez. Registra información operativa del negocio, sin datos personales de pacientes ni historias clínicas. Para trabajo compartido futuro, harían falta cuentas, almacenamiento privado y respaldo en servidor.
+
+Si el almacenamiento falla, la página muestra el error y permite descargar las notas de la pestaña abierta. Si encuentra datos corruptos al cargar, evita reemplazarlos y permite descargar el contenido original para recuperarlo. El acceso por URL no comparte una entrevista.
+
 ## Preparar una reunión o grabación
 
 1. Abre `/demo`, pulsa **Restablecer ejemplo** y acepta reemplazar únicamente los datos ficticios de ese navegador.

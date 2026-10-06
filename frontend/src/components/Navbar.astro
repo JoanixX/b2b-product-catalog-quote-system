@@ -10,6 +10,7 @@ import { brand } from '../lib/demo';
     <nav aria-label="Navegación principal">
       <a href="/#como-funciona">Cómo funciona</a>
       <a href="/solicitud">Nueva solicitud</a>
+      <a href="/entrevistas" class="interviews-link" aria-current={Astro.url.pathname.startsWith('/entrevistas') ? 'page' : undefined}>Entrevistas</a>
       <a class="button button-primary" href="/demo">Abrir demo <span aria-hidden="true">↗</span></a>
     </nav>
   </div>
@@ -27,5 +28,7 @@ import { brand } from '../lib/demo';
   nav>a:not(.button) { text-decoration:none; color:var(--muted); font-weight:700; font-size:.87rem; }
   nav>a:not(.button):hover { color:var(--primary); }
   nav .button { min-height:39px; font-size:.82rem; padding:.6rem .85rem; }
-  @media(max-width:720px) { .nav-inner { min-height:66px; } .identity small,nav>a:not(.button) { display:none; } nav { gap:8px; } }
+  nav>a[aria-current=page] { color:var(--accent); }
+  @media(max-width:850px) { .identity small { display:none; } nav { gap:16px; } }
+  @media(max-width:720px) { .nav-inner { min-height:66px; } nav>a:not(.button):not(.interviews-link) { display:none; } nav { gap:12px; } }
 </style>
